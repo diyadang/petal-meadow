@@ -204,6 +204,12 @@ ul.tasks{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .danger{color:#c4456b}
 .row{display:flex;gap:8px;flex-wrap:wrap}
 .row .btn{flex:1}
+.backupline{text-align:center;font-size:12.5px;font-weight:700;color:var(--muted);margin-top:8px}
+.backupline button{border:0;background:transparent;color:var(--pink-deep);font-weight:800;font-size:12.5px;padding:4px;text-decoration:underline}
+.sheet textarea{width:100%;min-height:88px;font:inherit;font-size:14px;padding:10px 12px;border-radius:16px;border:2.5px solid var(--ink);background:#fff;resize:vertical}
+.divider{border:0;border-top:2px dashed var(--line);margin:4px 0;width:100%}
+.note{margin:0;color:var(--muted);font-weight:700;font-size:13.5px}
+.ok{color:var(--green-deep)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:var(--ink);color:#fff;font-weight:800;border-radius:99px;padding:10px 18px;max-width:90%;text-align:center;animation:pop .25s ease}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
@@ -443,7 +449,8 @@ function renderPanel(newTask){
   ${grown?`<div class="grown"><b>omg ${esc(p.name)} is all grown up</b><span>send ${esc(p.name)} off to live in the meadow whenever ur ready. no rush, u can keep adding tasks here till then</span><button class="btn green" type="button" id="sendHome">send to the meadow ✿</button></div>`:""}
   <form class="add" id="addForm" autocomplete="off"><input id="newTask" maxlength="140" placeholder="what's on ur list?" aria-label="New task" enterkeyhint="done"><button class="btn" type="submit">add</button></form>
   <ul class="tasks" id="todo">${act.length?act.map(t=>taskRow(t,t.id===newTask)).join(""):`<li class="empty">${p.tasks.length?`list cleared!! ${esc(p.name)} is so full rn ♡`:`${esc(p.name)} is hungry!! add a task, then tap the circle when it's done to feed them`}</li>`}</ul>
-  ${dn.length?`<div class="sec"><h2>eaten (${dn.length})</h2><button class="link" type="button" id="clearDone">clear</button></div><ul class="tasks">${dn.map(t=>taskRow(t)).join("")}</ul>`:""}`;
+  ${dn.length?`<div class="sec"><h2>eaten (${dn.length})</h2><button class="link" type="button" id="clearDone">clear</button></div><ul class="tasks">${dn.map(t=>taskRow(t)).join("")}</ul>`:""}
+  <div class="backupline">${backupText()} · <button type="button" id="openBackup">back up ur pets</button></div>`;
 }
 function taskRow(t,isNew){return `<li class="task${t.done?" done":""}${isNew?" new":""}" data-task="${t.id}"><button class="check" type="button" data-act="toggle" aria-label="${t.done?"Mark not done":"Mark done"}: ${esc(t.text)}">${ICON.check}</button><span class="txt">${esc(t.text)}</span><button class="del" type="button" data-act="del" aria-label="Delete: ${esc(t.text)}">×</button></li>`}
 
@@ -487,6 +494,7 @@ document.addEventListener("click",e=>{
   if(e.target.closest("#sendHome")){sendHome(cur());return}
   if(e.target.closest("#openMeadow")){meadowFlow("res");return}
   if(e.target.closest("#openBook")){meadowFlow("book");return}
+  if(e.target.closest("#openBackup")){backupFlow();return}
 });
 document.addEventListener("submit",e=>{
   if(e.target.id!=="addForm")return;e.preventDefault();
@@ -585,7 +593,7 @@ function meadowFlow(tab){
       :`<div class="meadowempty">nobody lives here yet! once a pet is all grown up, send them here and they'll frolic forever ✿</div>`)
     :`<p class="sub" style="margin:0">${found}/${SPECIES.length} found · secret ones are suuuper rare</p><div class="grid">${SPECIES.map(s=>S.seen[s.id]?`<div class="card">${petSVG(s,{stage:3,anim:false})}<b>${s.name}</b><span class="tag r-${s.r}" style="font-size:10px;padding:1px 7px">${RNAME[s.r]}</span></div>`:`<div class="card locked">${petSVG(s,{stage:3,anim:false})}<b>???</b><span class="tag r-${s.r}" style="font-size:10px;padding:1px 7px">${RNAME[s.r]}</span></div>`).join("")}</div>`;
   const sh=modal(`<button class="x" type="button" aria-label="Close">×</button><h2>${tab==="res"?"the meadow":"sticker book"}</h2>
-   <div class="tabs" role="tablist"><button type="button" role="tab" aria-selected="${tab==="res"}" data-tab="res">residents (${res.length})</button><button type="button" role="tab" aria-selected="${tab==="book"}" data-tab="book">sticker book</button></div>${body}`);
+   <div class="tabs" role="tablist"><button type="button" role="tab" aria-selected="${tab==="res"}" data-tab="res">residents (${res.length})</button><button type="button" role="tab" aria-selected="${tab==="book"}" data-tab="book">sticker book</button></div>${body}<div class="backupline">${backupText()} · <button type="button" id="openBackup">back up ur pets</button></div>`);
   sh.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(b)meadowFlow(b.dataset.tab)});
   sh.querySelectorAll("[data-res]").forEach(b=>b.onclick=()=>residentFlow(S.pets.find(x=>x.id===b.dataset.res)));
 }
@@ -596,6 +604,63 @@ function residentFlow(r){
    <h2 style="font-size:18px">everything ${esc(r.name)} ate (${e.length})</h2><ul class="eaten">${e.map(x=>`<li>${esc(x.t)}<span>${fmt(x.at)}</span></li>`).join("")||`<li>nothing saved here</li>`}</ul>
    <button class="btn plain wide" type="button" id="back">back to the meadow</button>`);
   $("back").onclick=()=>meadowFlow("res");
+}
+
+/* ================= backup ================= */
+function backupText(){return S.lastBackup?`last backup: ${fmt(S.lastBackup)}`:"no backup yet"}
+function backupJSON(){return JSON.stringify({app:"nibble",savedAt:Date.now(),data:S})}
+function toCode(t){return btoa(unescape(encodeURIComponent(t)))}
+function fromCode(c){return decodeURIComponent(escape(atob(c.replace(/\s+/g,""))))}
+function parseBackup(text){
+  let o=null;text=String(text||"").trim();
+  try{o=JSON.parse(text)}catch(e){try{o=JSON.parse(fromCode(text))}catch(e2){}}
+  const d=o&&o.data?o.data:o;
+  if(!d||d.v!==2||!Array.isArray(d.pets))return null;
+  d.days=d.days||{};d.seen=d.seen||{};return d;
+}
+function markBacked(){S.lastBackup=Date.now();save()}
+function backupFlow(){
+  let pending=null,confirm=false;
+  const n=S.pets.length;
+  const sh=modal(`<button class="x" type="button" aria-label="Close">×</button><h2>back up ur pets</h2>
+   <p class="sub">ur pets live on this phone. save a backup every once in a while so they're safe if u get a new phone or clear safari ♡</p>
+   <p class="note">${backupText()} · ${n} pet${n===1?"":"s"} saved right now</p>
+   <button class="btn wide" type="button" id="bkSave">save backup file</button>
+   <button class="btn plain wide" type="button" id="bkCopy">copy backup code</button>
+   <p class="note" id="bkMsg" role="status"></p>
+   <hr class="divider">
+   <h2 style="font-size:20px">restore</h2>
+   <p class="note">pick a backup file, or paste a backup code. this replaces the pets on this phone.</p>
+   <input type="file" id="bkFile" accept=".json,application/json,text/plain" hidden>
+   <button class="btn plain wide" type="button" id="bkPick">choose backup file</button>
+   <textarea id="bkCode" placeholder="or paste ur backup code here" aria-label="Backup code"></textarea>
+   <button class="btn green wide" type="button" id="bkRestore">restore</button>`);
+  const msg=t=>{$("bkMsg").textContent=t};
+  $("bkSave").onclick=async()=>{
+    const name=`nibble-backup-${dkey()}.json`,txt=backupJSON();
+    try{
+      const file=new File([txt],name,{type:"application/json"});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"nibble backup"});markBacked();msg("saved ♡ keep it somewhere safe, like Files or Notes");return}
+    }catch(e){if(e&&e.name==="AbortError"){msg("no worries, nothing saved");return}}
+    try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:"application/json"}));a.download=name;document.body.appendChild(a);a.click();a.remove();markBacked();msg("backup file downloaded ♡")}
+    catch(e){msg("couldn't save a file here. use \"copy backup code\" instead")}
+  };
+  $("bkCopy").onclick=()=>{
+    const code=toCode(backupJSON());
+    navigator.clipboard.writeText(code).then(()=>{markBacked();msg("copied!! paste it into Notes or text it to urself ♡")})
+      .catch(()=>{$("bkCode").value=code;$("bkCode").select();msg("select the code below and copy it")});
+  };
+  $("bkPick").onclick=()=>$("bkFile").click();
+  $("bkFile").onchange=()=>{const f=$("bkFile").files[0];if(!f)return;const r=new FileReader();r.onload=()=>{pending=parseBackup(r.result);confirm=false;
+    if(!pending){msg("hmm, that file isn't a nibble backup");return}
+    $("bkRestore").textContent=`restore ${pending.pets.length} pet${pending.pets.length===1?"":"s"} from file`;msg("file loaded. tap restore when ready")};r.readAsText(f)};
+  $("bkCode").oninput=()=>{pending=null;confirm=false;$("bkRestore").textContent="restore"};
+  $("bkRestore").onclick=()=>{
+    const d=pending||parseBackup($("bkCode").value);
+    if(!d){msg("that code doesn't look right. try copying the whole thing again");return}
+    if(!confirm){confirm=true;$("bkRestore").textContent=`r u sure? this replaces ur ${n} current pet${n===1?"":"s"}. tap again`;return}
+    S=d;S.lastBackup=S.lastBackup||Date.now();save();closeModal();lastHero="";render();toast(`restored ${S.pets.length} pet${S.pets.length===1?"":"s"} ♡`);
+  };
 }
 
 /* ================= boot ================= */
