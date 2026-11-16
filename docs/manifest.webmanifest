@@ -1,0 +1,16 @@
+{
+  "name": "Petal Meadow",
+  "short_name": "Petal Meadow",
+  "description": "A to-do list where finished tasks feed blind-box pets that grow up and move into the Meadow.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fffaf3",
+  "theme_color": "#ffd3e2",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

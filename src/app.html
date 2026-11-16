@@ -1,0 +1,583 @@
+<title>Petal Meadow</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&display=swap">
+<style>
+/* Layout: phone-shaped column. Flower-meadow scene on top, cream sheet with the selected pet's to-do list below; modals slide up from the bottom */
+:root{
+  color-scheme:light;
+  --ink:#4a3530; --muted:#9b7f78; --cream:#fffaf3; --paper:#fff4f7; --line:#efdcd6;
+  --pink:#ff8fb1; --pink-deep:#ee6690; --pink-soft:#ffd9e5; --green:#8fd18a; --green-deep:#5ea866; --green-soft:#e1f4d8;
+  --yellow:#ffd36e; --sky:#ffe1eb;
+  --display:"Fredoka","Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+  --body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:#f6e6ea}
+body{background:#f6e6ea;color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;font-weight:500}
+button,input{font:inherit;color:inherit;touch-action:manipulation}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--pink-deep);outline-offset:2px}
+.app{max-width:480px;margin:0 auto;min-height:100%;background:var(--cream);position:relative;box-shadow:0 0 0 2px var(--ink)}
+@media (min-width:500px){.app{margin-block:16px;border-radius:28px;overflow:hidden;min-height:calc(100vh - 32px)}}
+
+/* ---------- scene ---------- */
+.scene{position:relative;height:min(52vh,430px);min-height:330px;overflow:hidden;background:var(--sky);user-select:none;-webkit-user-select:none}
+.scene>svg.bg,.scene>svg.fg{position:absolute;left:0;width:100%;display:block}
+.scene>svg.bg{top:0;height:100%}
+.scene>svg.fg{bottom:-2px;height:17%;z-index:4;pointer-events:none}
+.walkers{position:absolute;inset:0;z-index:1;pointer-events:none}
+.walker{position:absolute;width:var(--w);animation:walk var(--d) ease-in-out infinite;pointer-events:auto}
+.walker>div{animation:flip var(--d) steps(1) infinite}
+.walker svg{width:100%;display:block;animation:hop .5s ease-in-out infinite alternate}
+@keyframes walk{0%,100%{transform:translateX(0)}50%{transform:translateX(var(--dist))}}
+@keyframes flip{0%{transform:scaleX(1)}50%{transform:scaleX(-1)}}
+@keyframes hop{to{transform:translateY(-3px)}}
+.hero{position:absolute;left:50%;bottom:7%;width:min(52%,230px);transform:translateX(-50%);z-index:3;cursor:pointer}
+.hero svg{width:100%;display:block;overflow:visible}
+.bob{animation:bob 2.8s ease-in-out infinite;transform-origin:50% 95%}
+@keyframes bob{0%,100%{transform:none}50%{transform:translateY(-4px) scale(.99,1.015)}}
+.hero.wiggle .bob{animation:wiggle .6s ease}
+@keyframes wiggle{25%{transform:rotate(-7deg) scale(1.03)}50%{transform:rotate(6deg)}75%{transform:rotate(-3deg)}}
+.hero.jump .bob{animation:jump .75s cubic-bezier(.3,1.6,.5,1)}
+@keyframes jump{0%{transform:scale(1.1,.86)}40%{transform:translateY(-30px) scale(.94,1.08)}75%{transform:scale(1.06,.93)}100%{transform:none}}
+.blink{animation:blink 5s infinite;transform-box:fill-box;transform-origin:center}
+@keyframes blink{0%,95%,100%{transform:scaleY(1)}97.5%{transform:scaleY(.1)}}
+.spark{animation:twinkle 1.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes twinkle{0%,100%{opacity:.15;transform:scale(.5)}50%{opacity:1;transform:scale(1)}}
+.zz{font-family:var(--display);font-weight:700;fill:var(--muted);animation:zz 3s ease-in-out infinite}
+@keyframes zz{0%{opacity:0;transform:translate(0,0)}30%{opacity:1}100%{opacity:0;transform:translate(12px,-26px)}}
+.box-hero .lidg{animation:boxshake 2.2s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes boxshake{0%,70%,100%{transform:none}75%{transform:rotate(-6deg) translateY(-4px)}80%{transform:rotate(5deg) translateY(-6px)}85%{transform:rotate(-3deg)}90%{transform:none}}
+.fx{position:absolute;inset:0;pointer-events:none;z-index:6}
+.fx span{position:absolute;font-size:22px;color:var(--pink-deep);animation:rise 1.3s ease-out forwards;text-shadow:0 0 0 #fff}
+@keyframes rise{0%{opacity:0;transform:translate(0,0) scale(.5)}20%{opacity:1}100%{opacity:0;transform:translate(var(--dx),-130px) scale(1.25)}}
+.bubble{position:absolute;left:50%;bottom:calc(7% + min(52vw,230px) * .92);transform:translateX(-50%);z-index:5;max-width:78%;background:#fff;border:2.5px solid var(--ink);border-radius:20px;padding:8px 14px;font-family:var(--display);font-weight:500;font-size:16px;line-height:1.25;text-align:center;transition:opacity .25s,transform .25s;white-space:normal}
+@media (min-width:480px){.bubble{bottom:calc(7% + 215px)}}
+.bubble::after{content:"";position:absolute;left:50%;bottom:-10px;margin-left:-8px;width:16px;height:16px;background:#fff;border-right:2.5px solid var(--ink);border-bottom:2.5px solid var(--ink);transform:rotate(45deg) scaleY(.8)}
+.bubble[data-hide="1"]{opacity:0;transform:translate(-50%,8px);pointer-events:none}
+
+.stats{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));left:12px;z-index:5;background:#fff;border:2.5px solid var(--ink);border-radius:18px;padding:8px 12px;min-width:132px;box-shadow:0 3px 0 rgba(74,53,48,.18)}
+.stats .lbl{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.stats b{font-family:var(--display);font-size:20px;font-weight:600;color:var(--pink-deep);font-variant-numeric:tabular-nums}
+.stats .hearts{font-size:15px;letter-spacing:1px;color:var(--pink)}
+.stats .hearts i{font-style:normal;color:var(--pink-soft)}
+.stats .streak{font-size:12px;font-weight:700;color:var(--green-deep);margin-top:2px}
+.side{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:12px;z-index:5;display:grid;gap:10px}
+.sticker{display:grid;justify-items:center;gap:2px;border:0;background:transparent;padding:0;font-family:var(--display);font-weight:600;font-size:13px;color:var(--ink);text-shadow:-1.5px -1.5px 0 #fff,1.5px -1.5px 0 #fff,-1.5px 1.5px 0 #fff,1.5px 1.5px 0 #fff}
+.sticker .ic{width:52px;height:52px;border-radius:18px;background:#fff;border:2.5px solid var(--ink);display:grid;place-items:center;box-shadow:0 3px 0 rgba(74,53,48,.2);position:relative}
+.sticker .ic svg{width:34px;height:34px}
+.sticker .badge{position:absolute;top:-8px;right:-10px;background:var(--pink-deep);color:#fff;border:2px solid var(--ink);border-radius:99px;font-size:11px;padding:0 6px;line-height:16px;text-shadow:none}
+.levelup{position:absolute;inset:0;z-index:7;display:grid;place-items:center;background:rgba(255,244,247,.75);text-align:center;font-family:var(--display);font-size:18px;animation:pop .35s ease}
+.levelup b{display:block;font-size:30px;color:var(--pink-deep)}
+@keyframes pop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+
+/* ---------- pet switcher ---------- */
+.switcher{display:flex;gap:10px;overflow-x:auto;padding:12px 16px 10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--pink-soft);border-top:2.5px solid var(--ink);border-bottom:2.5px solid var(--ink);scrollbar-width:none}
+.switcher::-webkit-scrollbar{display:none}
+.chip{flex:none;display:grid;justify-items:center;gap:3px;border:0;background:transparent;padding:0;width:64px;font-size:12px;font-weight:800}
+.chip .av{width:58px;height:58px;border-radius:50%;background:#fff;border:2.5px solid var(--ink);overflow:hidden;display:grid;place-items:end center;position:relative}
+.chip .av svg{width:118%;margin-bottom:-14%}
+.chip[aria-pressed="true"] .av{background:var(--green-soft);box-shadow:0 0 0 3px var(--pink-deep)}
+.chip .nm{max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip .ring{position:absolute;inset:-2px;border-radius:50%}
+.chip.add .av{background:var(--cream);border-style:dashed;place-items:center;font-family:var(--display);font-size:30px;color:var(--pink-deep)}
+.chip .done-dot{position:absolute;top:-2px;right:-2px;width:18px;height:18px;border-radius:50%;background:var(--yellow);border:2px solid var(--ink);font-size:10px;display:grid;place-items:center}
+
+/* ---------- panel ---------- */
+.panel{padding:18px 16px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:calc(40px + env(safe-area-inset-bottom,0px));display:grid;gap:14px}
+.phead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.phead h1{font-family:var(--display);font-weight:700;font-size:28px;line-height:1.1;margin:0;overflow-wrap:anywhere}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.tag{font-size:12px;font-weight:800;padding:3px 10px;border-radius:99px;border:2px solid var(--ink);background:#fff;white-space:nowrap}
+.tag.purpose{background:var(--green-soft)}
+.tag.stage{background:var(--pink-soft)}
+.r-common{background:#e9f6e2}.r-uncommon{background:#fff1c9}.r-rare{background:var(--pink-soft)}.r-secret{background:linear-gradient(90deg,#ffd9e5,#e1f4d8,#fff1c9)}
+.iconbtn{flex:none;width:40px;height:40px;border-radius:14px;border:2.5px solid var(--ink);background:#fff;display:grid;place-items:center;box-shadow:0 2px 0 rgba(74,53,48,.2)}
+.iconbtn svg{width:20px;height:20px}
+.prog .bar{height:16px;border-radius:99px;border:2.5px solid var(--ink);background:#fff;overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;background:repeating-linear-gradient(-45deg,var(--pink) 0 10px,#ffa3c0 10px 20px);border-right:2.5px solid var(--ink);transition:width .6s cubic-bezier(.3,1.4,.5,1)}
+.prog .bar i.full{border-right:0;background:repeating-linear-gradient(-45deg,var(--green) 0 10px,#a6dca1 10px 20px)}
+.prog .meta{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:700;color:var(--muted);margin-top:5px;font-variant-numeric:tabular-nums}
+.grown{border:2.5px solid var(--ink);border-radius:20px;background:var(--green-soft);padding:14px;display:grid;gap:10px;text-align:center}
+.grown b{font-family:var(--display);font-size:20px;font-weight:600}
+.btn{border:2.5px solid var(--ink);border-radius:16px;background:var(--pink);color:var(--ink);font-family:var(--display);font-weight:600;font-size:17px;padding:11px 18px;box-shadow:0 3px 0 var(--ink);transition:transform .08s}
+.btn:active{transform:translateY(3px);box-shadow:0 0 0 var(--ink)}
+.btn.green{background:var(--green)}
+.btn.plain{background:#fff}
+.btn.wide{width:100%}
+form.add{display:flex;gap:8px}
+form.add input{flex:1;min-width:0;font-size:16px;padding:12px 14px;border-radius:16px;border:2.5px solid var(--ink);background:#fff}
+form.add input:focus{outline:none;box-shadow:0 0 0 3px var(--pink-soft)}
+form.add .btn{padding:0 18px}
+ul.tasks{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.task{display:flex;align-items:center;gap:12px;background:#fff;border:2.5px solid var(--ink);border-radius:18px;padding:10px 8px 10px 12px}
+.task.new{animation:pop .3s ease}
+.check{flex:none;width:30px;height:30px;border-radius:50%;border:2.5px solid var(--ink);background:#fff;display:grid;place-items:center;padding:0}
+.check svg{width:20px;height:20px;opacity:0;transition:opacity .15s}
+.task.done{background:var(--paper);border-color:#d9c2bd}
+.task.done .check{background:var(--pink)}
+.task.done .check svg{opacity:1}
+.task .txt{flex:1;min-width:0;overflow-wrap:anywhere;font-weight:700}
+.task.done .txt{color:var(--muted);text-decoration:line-through;font-weight:500}
+.del{flex:none;width:34px;height:34px;border:0;border-radius:12px;background:transparent;color:var(--muted);font-size:22px;line-height:1}
+.del:active{background:var(--paper)}
+.sec{display:flex;justify-content:space-between;align-items:center;margin-top:2px}
+.sec h2{margin:0;font-family:var(--display);font-weight:600;font-size:15px;color:var(--muted)}
+.link{border:0;background:transparent;color:var(--pink-deep);font-weight:800;font-size:13px;padding:4px 6px}
+.empty{border:2.5px dashed #e3c9c3;border-radius:18px;padding:18px;text-align:center;color:var(--muted);font-weight:700}
+.welcome{text-align:center;display:grid;gap:12px;padding:8px 4px}
+.welcome h1{font-family:var(--display);font-size:28px;margin:0}
+.welcome p{margin:0;color:var(--muted);font-weight:700}
+
+/* ---------- modal ---------- */
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(74,53,48,.35);display:flex;align-items:flex-end;justify-content:center;animation:fade .2s ease}
+@keyframes fade{from{opacity:0}}
+.sheet{width:100%;max-width:480px;max-height:92vh;overflow-y:auto;background:var(--cream);border:2.5px solid var(--ink);border-bottom:0;border-radius:28px 28px 0 0;padding:20px 18px;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));animation:up .3s cubic-bezier(.2,1.2,.4,1);display:grid;gap:14px;position:relative}
+@keyframes up{from{transform:translateY(40%);opacity:.4}}
+.sheet h2{font-family:var(--display);font-weight:700;font-size:24px;margin:0;padding-right:44px;text-wrap:balance}
+.sheet p.sub{margin:-8px 0 0;color:var(--muted);font-weight:700}
+.x{position:absolute;top:14px;right:14px;width:38px;height:38px;border-radius:50%;border:2.5px solid var(--ink);background:#fff;font-size:20px;line-height:1;display:grid;place-items:center;padding:0}
+.purposes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pcard{border:2.5px solid var(--ink);border-radius:18px;background:#fff;padding:12px 8px;display:grid;gap:4px;justify-items:center;text-align:center}
+.pcard b{font-family:var(--display);font-weight:600;font-size:16px}
+.pcard span{font-size:11.5px;color:var(--muted);font-weight:700;line-height:1.2}
+.pcard .pi{font-size:24px;line-height:1}
+.pcard[aria-pressed="true"]{background:var(--pink-soft);box-shadow:0 3px 0 var(--ink)}
+.field{display:grid;gap:6px}
+.field label{font-weight:800;font-size:13px}
+.field input{font-size:16px;padding:12px 14px;border-radius:16px;border:2.5px solid var(--ink);background:#fff;width:100%}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper button{width:44px;height:44px;border-radius:14px;border:2.5px solid var(--ink);background:#fff;font-family:var(--display);font-size:22px;padding:0}
+.stepper output{font-family:var(--display);font-size:26px;font-weight:600;min-width:2.5ch;text-align:center;font-variant-numeric:tabular-nums}
+.stepper small{color:var(--muted);font-weight:700}
+.boxstage{display:grid;justify-items:center;gap:8px;padding:6px 0;text-align:center}
+.boxstage .bx{width:min(62vw,240px);cursor:pointer;animation:boxshake2 1.6s ease-in-out infinite}
+@keyframes boxshake2{0%,60%,100%{transform:none}65%{transform:rotate(-5deg) translateY(-6px)}72%{transform:rotate(5deg) translateY(-8px)}80%{transform:rotate(-3deg)}88%{transform:none}}
+.bx.opening{animation:none}
+.bx.opening .lidg{animation:lidoff .7s ease-in forwards;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes lidoff{30%{transform:translateY(-14px) rotate(-6deg)}100%{transform:translate(60px,-160px) rotate(40deg);opacity:0}}
+.bx.opening .boxg{animation:squish .7s ease}
+@keyframes squish{30%{transform:scale(1.05,.92)}60%{transform:scale(.97,1.04)}}
+.tapme{font-family:var(--display);font-weight:600;font-size:18px;color:var(--pink-deep);animation:bob 1.4s ease-in-out infinite}
+.reveal{display:grid;justify-items:center;gap:6px;text-align:center;position:relative}
+.reveal .rays{position:absolute;top:-10px;width:300px;height:300px;max-width:100%;background:repeating-conic-gradient(from 0deg,rgba(255,143,177,.22) 0 12deg,transparent 12deg 24deg);border-radius:50%;animation:spin 14s linear infinite;-webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.reveal .pet{width:min(56vw,210px);position:relative;animation:popin .6s cubic-bezier(.2,1.6,.4,1)}
+@keyframes popin{from{transform:scale(.2) translateY(40px);opacity:0}}
+.reveal h3{font-family:var(--display);font-size:24px;margin:0;position:relative}
+.newbadge{display:inline-block;background:var(--yellow);border:2px solid var(--ink);border-radius:99px;font-size:12px;font-weight:800;padding:1px 8px;margin-left:6px;vertical-align:middle;transform:rotate(-6deg)}
+.tabs{display:flex;gap:6px;background:var(--paper);border:2.5px solid var(--ink);border-radius:16px;padding:4px}
+.tabs button{flex:1;border:0;border-radius:12px;padding:8px;background:transparent;font-family:var(--display);font-weight:600;font-size:15px}
+.tabs button[aria-selected="true"]{background:var(--pink)}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.card{border:2.5px solid var(--ink);border-radius:18px;background:#fff;padding:8px 6px 10px;display:grid;justify-items:center;gap:2px;text-align:center;min-width:0}
+.card svg{width:100%;max-width:96px;display:block}
+.card b{font-family:var(--display);font-weight:600;font-size:14px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card span{font-size:11px;color:var(--muted);font-weight:700;line-height:1.2}
+.card.locked svg{filter:brightness(0) opacity(.13)}
+.card.locked{background:var(--paper);border-style:dashed}
+.meadowempty{text-align:center;color:var(--muted);font-weight:700;padding:20px 8px}
+.eaten{list-style:none;margin:0;padding:0;display:grid;gap:6px;max-height:40vh;overflow-y:auto}
+.eaten li{background:#fff;border:2px solid var(--line);border-radius:12px;padding:8px 12px;display:flex;justify-content:space-between;gap:10px;font-weight:700;overflow-wrap:anywhere}
+.eaten li span{color:var(--muted);font-size:12px;white-space:nowrap}
+.choices{display:grid;gap:8px}
+.choice{display:flex;align-items:center;gap:12px;border:2.5px solid var(--ink);border-radius:18px;background:#fff;padding:8px 14px 8px 8px;text-align:left;font-weight:800}
+.choice .av{width:48px;height:48px;flex:none;border-radius:50%;background:var(--green-soft);border:2px solid var(--ink);overflow:hidden;display:grid;place-items:end center}
+.choice .av svg{width:118%;margin-bottom:-14%}
+.danger{color:#c4456b}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row .btn{flex:1}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:var(--ink);color:#fff;font-weight:800;border-radius:99px;padding:10px 18px;max-width:90%;text-align:center;animation:pop .25s ease}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app" id="app">
+  <section class="scene" id="scene" aria-label="Flower meadow">
+    <div class="walkers" id="walkers"></div>
+    <div class="hero" id="hero" role="button" tabindex="0" aria-label="Your pet"></div>
+    <div class="bubble" id="bubble" data-hide="1"></div>
+    <div class="stats" id="stats"></div>
+    <div class="side">
+      <button class="sticker" id="openMeadow" type="button"><span class="ic" id="meadowIc"></span>Meadow</button>
+      <button class="sticker" id="openBook" type="button"><span class="ic" id="bookIc"></span>Collection</button>
+    </div>
+    <div class="fx" id="fx"></div>
+  </section>
+  <nav class="switcher" id="switcher" aria-label="Your pets"></nav>
+  <main class="panel" id="panel"></main>
+</div>
+<div id="modalRoot"></div>
+
+<script>
+(function(){
+"use strict";
+/* ================= data ================= */
+const SPECIES=[
+ {id:"tabby",kind:"cat",name:"Orange Tabby",r:"common",fur:"#ffc77d",fur2:"#fffaf3",mark:"#ee9f4c",inner:"#ffd3d6",line:"#a8673a",eye:"#3d2b26",pat:"stripes"},
+ {id:"calico",kind:"cat",name:"Calico Kitty",r:"common",fur:"#fffaf3",fur2:"#fffaf3",mark:"#dba16c",mark2:"#7d5c49",inner:"#ffc9cf",line:"#3d2b26",eye:"#3d2b26",pat:"patch"},
+ {id:"cream-bun",kind:"bunny",name:"Cream Bunny",r:"common",fur:"#fffaf0",fur2:"#fffaf0",inner:"#fbe0d6",line:"#d2b19b",eye:"#9c6f62"},
+ {id:"cocoa-bear",kind:"bear",name:"Cocoa Bear",r:"common",fur:"#d9a77c",fur2:"#f4d8bb",inner:"#c18b63",line:"#3d2b26",eye:"#3d2b26"},
+ {id:"puff-pup",kind:"dog",name:"Puff Pup",r:"common",fur:"#ffffff",fur2:"#ffffff",inner:"#ffffff",line:"#4a3530",eye:"#2b1f1c",style:"fluffy"},
+ {id:"fawn",kind:"deer",name:"Little Fawn",r:"common",fur:"#e3aa78",fur2:"#fbe8d4",mark:"#fff6ea",inner:"#f8cfc4",line:"#8a5a3c",eye:"#3d2b26",antler:"#c99a6b"},
+ {id:"smoky-cat",kind:"cat",name:"Smoky Kitty",r:"uncommon",fur:"#cfc9d6",fur2:"#f7f4f9",mark:"#a8a1b1",inner:"#ffd0d8",line:"#4a4350",eye:"#3a3340",pat:"stripes"},
+ {id:"honey-bear",kind:"bear",name:"Honey Bear",r:"uncommon",fur:"#f7cf7b",fur2:"#fff0c9",inner:"#e9ad54",line:"#8a5a2a",eye:"#3d2b26"},
+ {id:"mocha-bun",kind:"bunny",name:"Mocha Bunny",r:"uncommon",fur:"#cfa58b",fur2:"#f6e6da",inner:"#f6cbc0",line:"#7a5444",eye:"#4a3530"},
+ {id:"shiba",kind:"dog",name:"Shiba Pup",r:"uncommon",fur:"#f2b26b",fur2:"#fffaf3",inner:"#ffe2c8",line:"#7a4a2a",eye:"#2b1f1c",style:"pointy"},
+ {id:"sakura-bun",kind:"bunny",name:"Sakura Bunny",r:"rare",fur:"#ffd5e3",fur2:"#fff2f7",inner:"#ff9fbf",line:"#c7738f",eye:"#8a4a60",flower:true},
+ {id:"berry-bear",kind:"bear",name:"Strawberry Bear",r:"rare",fur:"#ffb6ca",fur2:"#ffe6ee",inner:"#ff8fb1",line:"#a84d6a",eye:"#5a2a3a",leaf:true},
+ {id:"matcha-cat",kind:"cat",name:"Matcha Kitty",r:"secret",fur:"#c3e6b4",fur2:"#f5fbf0",mark:"#8fcb83",inner:"#ffd0dc",line:"#4f7a48",eye:"#2f4a2c",pat:"stripes"},
+ {id:"blossom-fawn",kind:"deer",name:"Blossom Fawn",r:"secret",fur:"#ffc4d6",fur2:"#fff0f5",mark:"#ffffff",inner:"#ff9fbf",line:"#b05c7a",eye:"#5a2a3a",antler:"#ffe08a",flower:true}
+];
+const SP=Object.fromEntries(SPECIES.map(s=>[s.id,s]));
+const ODDS={common:58,uncommon:28,rare:11,secret:3};
+const RNAME={common:"Common",uncommon:"Uncommon",rare:"Rare",secret:"Secret"};
+const STAGES=["Baby","Little","Big","Grown-up"];
+const NAMES=["Mochi","Peaches","Dumpling","Clover","Biscuit","Tofu","Sakura","Bean","Pudding","Momo","Honey","Pebble","Sprout","Waffles","Lychee","Boba","Marshmallow","Poppy","Daisy","Bun","Cocoa","Toffee","Petal","Maple","Sesame","Butter"];
+const LINES={cat:["nya~","*purrs*","pet me more!","*slow blink*","mrrp?"],bunny:["*nibble nibble*","boing boing!","*happy binky*","carrots later?"],bear:["bear hug!!","*happy grumble*","is that honey?","you're the best"],dog:["woof woof!","*tail wag intensifies*","best friend!!","throw the ball?"],deer:["*happy hops*","the flowers smell nice","*ear flick*","let's go for a walk"]};
+const FED=["Yum!!","Nom nom nom","More please!","So tasty!","You did it!!","Proud of you!","*happy wiggle*","That was a good one"];
+const PURPOSE={day:{t:"Today",i:"☀",d:"grows up in a day",goal:5},week:{t:"This week",i:"✿",d:"a week-long buddy",goal:20},focus:{t:"Focus",i:"♥",d:"for one area of life",goal:30}};
+
+const KEY="petal-meadow-v2";
+let S=load();
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.v===2&&Array.isArray(s.pets))return s}catch(e){}return{v:2,pets:[],active:null,days:{},seen:{}}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+
+const $=id=>document.getElementById(id);
+const uid=()=>Math.random().toString(36).slice(2,10);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const dkey=(d=new Date())=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const fmt=ts=>new Date(ts).toLocaleDateString(undefined,{month:"short",day:"numeric"});
+const activePets=()=>S.pets.filter(p=>!p.home);
+const residents=()=>S.pets.filter(p=>p.home);
+const cur=()=>S.pets.find(p=>p.id===S.active&&!p.home)||activePets()[0]||null;
+function stageOf(p){const f=p.fed/p.goal;return f>=1?3:f>=.6?2:f>=.25?1:0}
+function stageAt(p,st){return Math.ceil(p.goal*[0,.25,.6,1][st])}
+function mood(p){if(p.fed>0&&p.lastFed&&Date.now()-p.lastFed>2*864e5)return"sleepy";return"ok"}
+function streak(){let n=0;const d=new Date();if(!S.days[dkey(d)])d.setDate(d.getDate()-1);while(S.days[dkey(d)]){n++;d.setDate(d.getDate()-1)}return n}
+function rollSpecies(){
+  let r=Math.random()*100,tier="common";
+  for(const [k,w] of Object.entries(ODDS)){if(r<w){tier=k;break}r-=w}
+  return pick(SPECIES.filter(s=>s.r===tier)).id;
+}
+
+/* ================= drawing ================= */
+let uidc=0;
+function mirror(s){return s+`<g transform="translate(200 0) scale(-1 1)">${s}</g>`}
+function fat(d,w,sp){return `<path d="${d}" fill="none" stroke="${sp.line}" stroke-width="${w+7}" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${sp.fur}" stroke-width="${w}" stroke-linecap="round"/>`}
+function flower(x,y,r,c,center){let s="";for(let k=0;k<5;k++){const a=(k*72-90)*Math.PI/180;s+=`<circle cx="${(x+Math.cos(a)*r*.9).toFixed(1)}" cy="${(y+Math.sin(a)*r*.9).toFixed(1)}" r="${(r*.62).toFixed(1)}" fill="${c}"/>`}return s+`<circle cx="${x}" cy="${y}" r="${(r*.45).toFixed(1)}" fill="${center||"#ffd36e"}"/>`}
+
+function petSVG(sp,o={}){
+  const st=o.stage??3, md=o.mood||"ok", id="c"+(++uidc);
+  const L=sp.line, W=4.5;
+  const sc=[.7,.82,.92,1][st];
+  let s=`<svg viewBox="0 0 200 205" aria-hidden="true"><defs><clipPath id="h${id}"><ellipse cx="100" cy="96" rx="52" ry="44"/></clipPath><clipPath id="b${id}"><ellipse cx="100" cy="152" rx="42" ry="34"/></clipPath></defs>`;
+  if(!o.noShadow)s+=`<ellipse cx="100" cy="194" rx="${50*sc}" ry="7" fill="#4a3530" opacity=".13"/>`;
+  s+=`<g class="${o.anim===false?"":"bob"}"><g transform="translate(100 192) scale(${sc}) translate(-100 -192)">`;
+  /* tail */
+  if(sp.kind==="cat")s+=fat("M134 172 C172 172 178 128 158 116",10,sp);
+  else if(sp.kind==="dog"&&sp.style==="pointy")s+=fat("M136 170 C160 170 164 144 148 140",10,sp);
+  else if(sp.kind==="dog")s+=`<circle cx="142" cy="166" r="13" fill="${sp.fur}" stroke="${L}" stroke-width="${W}"/>`;
+  else if(sp.kind==="bunny")s+=`<circle cx="141" cy="176" r="11" fill="${sp.fur}" stroke="${L}" stroke-width="${W}"/>`;
+  else if(sp.kind==="bear")s+=`<circle cx="139" cy="174" r="8" fill="${sp.fur}" stroke="${L}" stroke-width="${W}"/>`;
+  else if(sp.kind==="deer")s+=`<ellipse cx="140" cy="168" rx="8" ry="11" fill="${sp.fur2}" stroke="${L}" stroke-width="${W}" transform="rotate(30 140 168)"/>`;
+  /* body + feet */
+  s+=`<ellipse cx="100" cy="152" rx="42" ry="34" fill="${sp.fur}" stroke="${L}" stroke-width="${W}"/>`;
+  if(sp.fur2!==sp.fur)s+=`<ellipse cx="100" cy="160" rx="25" ry="22" fill="${sp.fur2}"/>`;
+  if(sp.kind==="deer")s+=`<g clip-path="url(#b${id})"><circle cx="70" cy="140" r="4.5" fill="${sp.mark}"/><circle cx="132" cy="146" r="4" fill="${sp.mark}"/><circle cx="76" cy="158" r="3.5" fill="${sp.mark}"/><circle cx="128" cy="162" r="3.5" fill="${sp.mark}"/></g>`;
+  if(sp.kind==="cat"&&sp.pat==="stripes")s+=`<g clip-path="url(#b${id})" stroke="${sp.mark}" stroke-width="5" stroke-linecap="round"><path d="M58 146 L70 148"/><path d="M58 158 L68 158"/><path d="M142 146 L130 148"/><path d="M142 158 L132 158"/></g>`;
+  if(sp.pat==="patch")s+=`<g clip-path="url(#b${id})"><ellipse cx="136" cy="150" rx="18" ry="22" fill="${sp.mark}"/></g>`;
+  s+=`<ellipse cx="100" cy="152" rx="42" ry="34" fill="none" stroke="${L}" stroke-width="${W}"/>`;
+  s+=mirror(`<path d="M84 141 Q78 156 88 166" fill="none" stroke="${L}" stroke-width="${W-.5}" stroke-linecap="round"/>`);
+  s+=mirror(`<ellipse cx="80" cy="185" rx="13" ry="8.5" fill="${sp.fur}" stroke="${L}" stroke-width="${W}"/>`);
+  /* ears + antlers (behind head) */
+  if(sp.kind==="cat"||(sp.kind==="dog"&&sp.style==="pointy"))
+    s+=mirror(`<path d="M54 84 Q50 36 62 30 Q76 32 96 58 Z" fill="${sp.fur}" stroke="${L}" stroke-width="${W}" stroke-linejoin="round"/><path d="M62 70 Q61 46 66 43 Q74 46 85 58 Z" fill="${sp.inner}"/>`);
+  if(sp.kind==="bunny")s+=mirror(`<g transform="rotate(-14 78 46)"><ellipse cx="78" cy="42" rx="15" ry="36" fill="${sp.fur}" stroke="${L}" stroke-width="${W}"/><ellipse cx="78" cy="46" rx="7.5" ry="25" fill="${sp.inner}"/></g>`);
+  if(sp.kind==="bear")s+=mirror(`<circle cx="60" cy="60" r="17" fill="${sp.fur}" stroke="${L}" stroke-width="${W}"/><circle cx="61" cy="61" r="8.5" fill="${sp.inner}"/>`);
+  if(sp.kind==="deer"){
+    s+=mirror(fat("M84 58 Q80 42 88 32",5,{line:L,fur:sp.antler})+fat("M83 46 Q76 42 74 36",4,{line:L,fur:sp.antler}));
+    s+=mirror(`<g transform="rotate(-26 46 76)"><ellipse cx="46" cy="76" rx="25" ry="11.5" fill="${sp.fur}" stroke="${L}" stroke-width="${W}"/><ellipse cx="44" cy="76" rx="15" ry="5.5" fill="${sp.inner}"/></g>`);
+  }
+  /* head */
+  s+=`<ellipse cx="100" cy="96" rx="52" ry="44" fill="${sp.fur}"/>`;
+  s+=`<g clip-path="url(#h${id})">`;
+  if(sp.pat==="stripes")s+=`<g stroke="${sp.mark}" stroke-width="5" stroke-linecap="round"><path d="M88 52 L90 64"/><path d="M100 50 L100 65"/><path d="M112 52 L110 64"/><path d="M46 92 L60 95"/><path d="M47 102 L59 103"/><path d="M154 92 L140 95"/><path d="M153 102 L141 103"/></g>`;
+  if(sp.pat==="patch")s+=`<ellipse cx="134" cy="72" rx="36" ry="30" fill="${sp.mark}"/><ellipse cx="62" cy="64" rx="22" ry="20" fill="${sp.mark2}"/>`;
+  if(sp.kind==="dog"&&sp.style==="pointy")s+=`<ellipse cx="100" cy="126" rx="44" ry="26" fill="${sp.fur2}"/><ellipse cx="80" cy="84" rx="7" ry="4" fill="${sp.fur2}"/><ellipse cx="120" cy="84" rx="7" ry="4" fill="${sp.fur2}"/>`;
+  if(sp.kind==="bear"||sp.kind==="deer")s+=`<ellipse cx="100" cy="116" rx="19" ry="13" fill="${sp.fur2}"/>`;
+  if(sp.kind==="deer")s+=`<circle cx="88" cy="60" r="3.5" fill="${sp.mark}"/><circle cx="112" cy="62" r="3" fill="${sp.mark}"/>`;
+  s+=`</g><ellipse cx="100" cy="96" rx="52" ry="44" fill="none" stroke="${L}" stroke-width="${W}"/>`;
+  /* floppy ears in front */
+  if(sp.kind==="dog"&&sp.style==="fluffy")s+=mirror(`<g transform="rotate(14 52 100)"><path d="M52 72 C30 74 30 96 36 104 C30 114 38 128 52 126 C66 128 70 112 66 102 C72 90 66 72 52 72 Z" fill="${sp.fur}" stroke="${L}" stroke-width="${W}" stroke-linejoin="round"/></g>`);
+  /* face */
+  const ec=sp.eye;
+  if(md==="sleepy")s+=mirror(`<path d="M73 102 Q80 108 87 102" fill="none" stroke="${ec}" stroke-width="3.5" stroke-linecap="round"/>`)+`<text class="zz" x="150" y="52" font-size="20">z</text>`;
+  else if(md==="happy")s+=mirror(`<path d="M73 104 Q80 95 87 104" fill="none" stroke="${ec}" stroke-width="3.5" stroke-linecap="round"/>`);
+  else s+=`<g class="${o.anim===false?"":"blink"}">`+mirror(`<ellipse cx="80" cy="101" rx="5.8" ry="7" fill="${ec}"/><circle cx="82" cy="98.5" r="2" fill="#fff"/>`)+`</g>`;
+  s+=mirror(`<ellipse cx="65" cy="115" rx="9.5" ry="6" fill="#ffadc4" opacity=".75"/>`);
+  if(sp.kind==="bunny")s+=mirror(`<path d="M62 112 L60 117 M67 112 L65 117" stroke="#f08aa8" stroke-width="2" stroke-linecap="round" opacity=".7"/>`)+`<path d="M96.5 108 L103.5 115 M103.5 108 L96.5 115" stroke="${ec}" stroke-width="3" stroke-linecap="round"/>`;
+  if(sp.kind==="cat")s+=`<ellipse cx="100" cy="110" rx="3.2" ry="2.4" fill="#ff9fb0"/><path d="M92.5 113.5 Q96.3 118 100 113.5 Q103.7 118 107.5 113.5" fill="none" stroke="${L}" stroke-width="2.6" stroke-linecap="round"/>`+mirror(`<path d="M42 106 L56 108 M43 114 L56 113" stroke="${L}" stroke-width="2.2" stroke-linecap="round"/>`);
+  if(sp.kind==="bear")s+=`<ellipse cx="100" cy="110" rx="5.5" ry="3.8" fill="${L}"/><path d="M93.5 116 Q96.8 120 100 116 Q103.2 120 106.5 116" fill="none" stroke="${L}" stroke-width="2.6" stroke-linecap="round"/>`;
+  if(sp.kind==="dog")s+=`<path d="M96 118 Q100 128 104 118 Z" fill="#ff8fa8" stroke="${L}" stroke-width="2.2" stroke-linejoin="round"/><path d="M92 116 Q100 121 108 116" fill="none" stroke="${L}" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="100" cy="110" rx="5.5" ry="4.3" fill="#2b1f1c"/>`;
+  if(sp.kind==="deer")s+=`<ellipse cx="100" cy="111" rx="4.5" ry="3.2" fill="${L}"/><path d="M95.5 116.5 Q100 120 104.5 116.5" fill="none" stroke="${L}" stroke-width="2.6" stroke-linecap="round"/>`;
+  /* species extras */
+  if(sp.leaf)s+=`<path d="M100 54 Q90 40 82 48 Q92 52 100 54 Q110 38 118 46 Q108 52 100 54 Q100 42 96 36" fill="#8fd18a" stroke="${L}" stroke-width="3" stroke-linejoin="round"/><g fill="#fff3b0"><circle cx="72" cy="80" r="1.8"/><circle cx="128" cy="80" r="1.8"/><circle cx="80" cy="128" r="1.6"/><circle cx="122" cy="130" r="1.6"/></g>`;
+  if(sp.flower&&st<2)s+=flower(132,58,7,"#ff8fb1");
+  /* growth accessories */
+  if(st===1)s+=`<g stroke="${L}" stroke-width="2.6" stroke-linejoin="round" fill="#ff8fb1"><path d="M136 58 L120 49 L122 68 Z"/><path d="M136 58 L152 49 L150 68 Z"/><circle cx="136" cy="58" r="5"/></g>`;
+  if(st===2)s+=`<path d="M128 62 Q138 54 150 60 Q140 70 128 62Z" fill="#8fd18a" stroke="${L}" stroke-width="2.4"/>`+flower(140,58,8.5,"#ffffff")+`<circle cx="140" cy="58" r="8.6" fill="none"/>`;
+  if(st===3){
+    const pts=[208,232,256,284,308,332],cols=["#ff8fb1","#ffffff","#ffb3cb","#ff8fb1","#ffffff","#ffb3cb"];
+    pts.forEach((a,i)=>{const r=a*Math.PI/180,x=100+50*Math.cos(r),y=96+42*Math.sin(r);
+      if(i<pts.length-1){const a2=(a+12)*Math.PI/180;s+=`<ellipse cx="${(100+52*Math.cos(a2)).toFixed(1)}" cy="${(96+44*Math.sin(a2)).toFixed(1)}" rx="6" ry="3" fill="#8fd18a" transform="rotate(${a+102} ${(100+52*Math.cos(a2)).toFixed(1)} ${(96+44*Math.sin(a2)).toFixed(1)})"/>`}
+      s+=flower(+x.toFixed(1),+y.toFixed(1),7.5,cols[i]);});
+  }
+  s+=`</g></g>`;
+  if(st===3&&o.sparkle)[[22,60,0],[178,50,.6],[186,128,1.1],[16,138,.35]].forEach(([x,y,d])=>{s+=`<path class="spark" style="animation-delay:${d}s" d="M${x} ${y-10}L${x+3} ${y-3}L${x+10} ${y}L${x+3} ${y+3}L${x} ${y+10}L${x-3} ${y+3}L${x-10} ${y}L${x-3} ${y-3}Z" fill="#ffd36e" stroke="#4a3530" stroke-width="1.5" stroke-linejoin="round"/>`});
+  return s+`</svg>`;
+}
+function boxSVG(){
+  return `<svg viewBox="0 0 200 200" aria-hidden="true"><ellipse cx="100" cy="186" rx="64" ry="8" fill="#4a3530" opacity=".13"/>
+  <g class="boxg"><rect x="42" y="92" width="116" height="88" rx="12" fill="#ffd9e5" stroke="#4a3530" stroke-width="5"/><rect x="90" y="92" width="20" height="88" fill="#8fd18a" stroke="#4a3530" stroke-width="4"/>
+  <circle cx="66" cy="120" r="5" fill="#ffffff"/><circle cx="138" cy="150" r="5" fill="#ffffff"/><circle cx="130" cy="112" r="3.5" fill="#ff8fb1"/><circle cx="62" cy="158" r="3.5" fill="#ff8fb1"/>
+  <circle cx="100" cy="140" r="17" fill="#fff" stroke="#4a3530" stroke-width="4"/><text x="100" y="150" text-anchor="middle" font-family="Fredoka,Arial Rounded MT Bold,sans-serif" font-weight="700" font-size="26" fill="#ee6690">?</text></g>
+  <g class="lidg"><rect x="34" y="70" width="132" height="28" rx="9" fill="#ff8fb1" stroke="#4a3530" stroke-width="5"/><rect x="90" y="70" width="20" height="28" fill="#8fd18a" stroke="#4a3530" stroke-width="4"/>
+  <path d="M100 70 C80 40 58 52 74 66 C80 70 92 70 100 70 C108 70 120 70 126 66 C142 52 120 40 100 70Z" fill="#8fd18a" stroke="#4a3530" stroke-width="4.5" stroke-linejoin="round"/><circle cx="100" cy="68" r="7" fill="#8fd18a" stroke="#4a3530" stroke-width="4"/></g></svg>`;
+}
+const ICON={
+  house:`<svg viewBox="0 0 40 40"><path d="M6 19 L20 7 L34 19" fill="none" stroke="#4a3530" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 17 V33 H30 V17" fill="#ffd9e5" stroke="#4a3530" stroke-width="3" stroke-linejoin="round"/><rect x="17" y="23" width="7" height="10" rx="2" fill="#8fd18a" stroke="#4a3530" stroke-width="2.5"/><circle cx="31" cy="31" r="4" fill="#ff8fb1"/></svg>`,
+  book:`<svg viewBox="0 0 40 40"><rect x="8" y="6" width="24" height="29" rx="4" fill="#8fd18a" stroke="#4a3530" stroke-width="3"/><rect x="12" y="10" width="16" height="12" rx="3" fill="#fff"/><circle cx="20" cy="16" r="3.5" fill="#ff8fb1"/><path d="M12 28 H28" stroke="#4a3530" stroke-width="2.5" stroke-linecap="round"/></svg>`,
+  pencil:`<svg viewBox="0 0 24 24"><path d="M4 20 L5 15 L16 4 L20 8 L9 19 Z" fill="#ffd9e5" stroke="#4a3530" stroke-width="2.2" stroke-linejoin="round"/><path d="M14 6 L18 10" stroke="#4a3530" stroke-width="2.2"/></svg>`,
+  check:`<svg viewBox="0 0 20 20"><path d="M4.5 10.5 L8.5 14.5 L15.5 6" fill="none" stroke="#4a3530" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+};
+
+/* ================= scene background ================= */
+function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function sceneBG(){
+  const R=rng(7);let s=`<svg class="bg" viewBox="0 0 400 340" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd3e2"/><stop offset="1" stop-color="#fff5f8"/></linearGradient></defs><rect width="400" height="340" fill="url(#sky)"/>`;
+  [[70,48,1],[300,34,.8],[205,76,.6]].forEach(([x,y,k])=>{s+=`<g fill="#fff" opacity=".95"><ellipse cx="${x}" cy="${y}" rx="${34*k}" ry="${13*k}"/><circle cx="${x-12*k}" cy="${y-8*k}" r="${13*k}"/><circle cx="${x+10*k}" cy="${y-11*k}" r="${16*k}"/></g>`});
+  for(let x=-20;x<430;x+=34){const r=24+R()*16;s+=`<circle cx="${x}" cy="${150-R()*12}" r="${r}" fill="#ffc2d5"/>`}
+  for(let i=0;i<26;i++)s+=`<circle cx="${R()*400}" cy="${128+R()*30}" r="${2+R()*2.5}" fill="${R()<.5?"#fff":"#ff9fbd"}" opacity=".9"/>`;
+  s+=`<path d="M0 162 Q100 140 210 156 T400 148 V340 H0Z" fill="#b8e4a6"/><path d="M0 204 Q120 186 250 200 T400 194 V340 H0Z" fill="#a6db96"/>`;
+  const fl=[];for(let i=0;i<150;i++){const y=165+Math.pow(R(),.8)*175;fl.push([R()*400,y])}
+  fl.sort((a,b)=>a[1]-b[1]).forEach(([x,y])=>{const k=(y-160)/180,r=1.6+k*6.5,c=R();
+    if(R()<.22)s+=`<path d="M${x.toFixed(1)} ${y.toFixed(1)} l-${(2+k*3).toFixed(1)} -${(4+k*6).toFixed(1)} M${x.toFixed(1)} ${y.toFixed(1)} l${(2+k*3).toFixed(1)} -${(4+k*6).toFixed(1)}" stroke="#7cc47a" stroke-width="${1+k*1.5}" stroke-linecap="round"/>`;
+    else s+=flower(+x.toFixed(1),+y.toFixed(1),+r.toFixed(1),c<.45?"#ffadc6":c<.75?"#ff8fb1":c<.92?"#ffffff":"#ffd9e5");});
+  return s+`</svg>`;
+}
+function sceneFG(){
+  const R=rng(42);let s=`<svg class="fg" viewBox="0 0 400 60" preserveAspectRatio="xMidYMax slice" aria-hidden="true">`;
+  for(let i=0;i<9;i++)s+=`<ellipse cx="${R()*400}" cy="${50+R()*10}" rx="${10+R()*8}" ry="5" fill="#8fcf85" transform="rotate(${R()*60-30})" />`;
+  for(let x=-10;x<420;x+=26+R()*14){const y=30+R()*26,c=R();s+=flower(+x.toFixed(1),+y.toFixed(1),+(8+R()*6).toFixed(1),c<.5?"#ff8fb1":c<.8?"#ffb3cb":"#ffffff")}
+  return s+`</svg>`;
+}
+$("scene").insertAdjacentHTML("afterbegin",sceneBG());
+$("scene").insertAdjacentHTML("beforeend",sceneFG());
+$("meadowIc").innerHTML=ICON.house+`<span class="badge" id="meadowCount" hidden></span>`;
+$("bookIc").innerHTML=ICON.book;
+
+/* ================= render ================= */
+let lastHero="";
+function render(newTask){renderScene();renderSwitcher();renderPanel(newTask)}
+function renderScene(){
+  const p=cur(),t=S.days[dkey()]||0;
+  $("stats").innerHTML=`<div class="lbl">Today</div><b>${t}</b> <span style="font-weight:800">${t===1?"task":"tasks"} done</span><div class="hearts" aria-label="${Math.min(5,t)} of 5 hearts">${"♥".repeat(Math.min(5,t))}<i>${"♥".repeat(5-Math.min(5,t))}</i></div>${streak()>1?`<div class="streak">✿ ${streak()} day streak</div>`:""}`;
+  let h;
+  if(p){h=petSVG(SP[p.species],{stage:stageOf(p),mood:mood(p),sparkle:true});$("hero").classList.remove("box-hero");$("hero").setAttribute("aria-label",`${p.name}, tap to pet`)}
+  else{h=boxSVG();$("hero").classList.add("box-hero");$("hero").setAttribute("aria-label","Open a blind box")}
+  if(h!==lastHero){$("hero").innerHTML=h;lastHero=h}
+  const res=residents(),mc=$("meadowCount");mc.hidden=!res.length;mc.textContent=res.length;
+  const show=res.slice(-7);
+  $("walkers").innerHTML=show.map((r,i)=>{const R=rng(r.id.split("").reduce((a,c)=>a+c.charCodeAt(0),0));
+    const side=i%2, row=Math.floor(i/2)%2, left=(side?60+R()*14:3+R()*12).toFixed(0), bottom=(row?44:30)+R()*4, w=row?40:50;
+    return `<div class="walker" style="left:${left}%;bottom:${bottom.toFixed(0)}%;--w:${w}px;--d:${(9+R()*8).toFixed(1)}s;--dist:${(30+R()*40).toFixed(0)}px;animation-delay:-${(R()*8).toFixed(1)}s" title="${esc(r.name)}"><div style="animation-delay:inherit">${petSVG(SP[r.species],{stage:3,anim:false,noShadow:false})}</div></div>`}).join("");
+}
+function renderSwitcher(){
+  const a=activePets(),p=cur();
+  $("switcher").hidden=!a.length;
+  $("switcher").innerHTML=a.map(x=>`<button class="chip" type="button" data-pet="${x.id}" aria-pressed="${p&&p.id===x.id}"><span class="av">${petSVG(SP[x.species],{stage:stageOf(x),anim:false,noShadow:true})}${x.fed>=x.goal?`<span class="done-dot">★</span>`:""}</span><span class="nm">${esc(x.name)}</span></button>`).join("")+
+    `<button class="chip add" type="button" data-new="1" aria-label="New blind box"><span class="av">+</span><span class="nm">New box</span></button>`;
+}
+function purposeLine(p){return `${PURPOSE[p.purpose].t}${p.label?` · ${esc(p.label)}`:""}`}
+function renderPanel(newTask){
+  const p=cur(),el=$("panel");
+  if(!p){
+    const r=residents().length;
+    el.innerHTML=`<div class="welcome"><h1>${r?"Ready for a new friend?":"Welcome to Petal Meadow"}</h1><p>${r?"Your grown-up pets are playing in the Meadow. Open a new blind box to start another one.":"Every pet comes out of a blind box. Give it a purpose, finish tasks to feed it, and watch it grow up."}</p><button class="btn wide" type="button" data-new="1">Open a blind box</button></div>`;
+    return;
+  }
+  const sp=SP[p.species],st=stageOf(p),grown=p.fed>=p.goal;
+  const nextSt=st<3?st+1:null;
+  const act=p.tasks.filter(t=>!t.done),dn=p.tasks.filter(t=>t.done);
+  el.innerHTML=`
+  <div class="phead"><div style="min-width:0"><h1>${esc(p.name)}</h1>
+    <div class="tags"><span class="tag purpose">${purposeLine(p)}</span><span class="tag stage">${STAGES[st]}</span><span class="tag r-${sp.r}">${sp.name}</span></div></div>
+    <button class="iconbtn" type="button" id="editPet" aria-label="Edit ${esc(p.name)}">${ICON.pencil}</button></div>
+  <div class="prog"><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${p.goal}" aria-valuenow="${Math.min(p.fed,p.goal)}" aria-label="Growth"><i class="${grown?"full":""}" style="width:${Math.min(100,p.fed/p.goal*100)}%"></i></div>
+    <div class="meta"><span>${Math.min(p.fed,p.goal)} / ${p.goal} treats</span><span>${grown?"All grown up!":`${STAGES[nextSt]} at ${stageAt(p,nextSt)}`}</span></div></div>
+  ${grown?`<div class="grown"><b>${esc(p.name)} is all grown up!</b><span>When you're ready, send ${esc(p.name)} to live in the Meadow. You can keep adding tasks here until then.</span><button class="btn green" type="button" id="sendHome">Send to the Meadow</button></div>`:""}
+  <form class="add" id="addForm" autocomplete="off"><input id="newTask" maxlength="140" placeholder="Add a task for ${esc(p.name)}…" aria-label="New task" enterkeyhint="done"><button class="btn" type="submit">Add</button></form>
+  <ul class="tasks" id="todo">${act.length?act.map(t=>taskRow(t,t.id===newTask)).join(""):`<li class="empty">${p.tasks.length?`All done! ${esc(p.name)} is full and happy.`:`${esc(p.name)} is hungry. Add a task, then tap the circle when it's done.`}</li>`}</ul>
+  ${dn.length?`<div class="sec"><h2>Done (${dn.length})</h2><button class="link" type="button" id="clearDone">Clear done</button></div><ul class="tasks">${dn.map(t=>taskRow(t)).join("")}</ul>`:""}`;
+}
+function taskRow(t,isNew){return `<li class="task${t.done?" done":""}${isNew?" new":""}" data-task="${t.id}"><button class="check" type="button" data-act="toggle" aria-label="${t.done?"Mark not done":"Mark done"}: ${esc(t.text)}">${ICON.check}</button><span class="txt">${esc(t.text)}</span><button class="del" type="button" data-act="del" aria-label="Delete: ${esc(t.text)}">×</button></li>`}
+
+/* ================= effects ================= */
+let bt;
+function say(t,ms=2400){const b=$("bubble");b.textContent=t;b.dataset.hide="0";clearTimeout(bt);bt=setTimeout(()=>b.dataset.hide="1",ms)}
+function anim(c){const h=$("hero");h.classList.remove("wiggle","jump");void h.offsetWidth;h.classList.add(c);setTimeout(()=>h.classList.remove(c),800)}
+function burst(n,ch="♥"){const fx=$("fx");for(let i=0;i<n;i++){const s=document.createElement("span");s.textContent=ch;s.style.left=(40+Math.random()*20)+"%";s.style.bottom=(22+Math.random()*18)+"%";s.style.setProperty("--dx",(Math.random()*90-45)+"px");s.style.animationDelay=(i*.07)+"s";fx.appendChild(s);setTimeout(()=>s.remove(),1800)}}
+function levelUp(p,st){
+  const d=document.createElement("div");d.className="levelup";
+  d.innerHTML=`<div><b>${esc(p.name)} grew!</b>${st===3?"All grown up, with a flower crown":"Now a "+STAGES[st].toLowerCase()+" "+SP[p.species].name.toLowerCase()}</div>`;
+  $("scene").appendChild(d);burst(12,"✿");
+  setTimeout(()=>{d.remove();say(st===3?"I'm all grown up! Thank you!!":"Look how big I'm getting!",3000)},1900);
+}
+function toast(t){const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}
+
+/* ================= actions ================= */
+function feed(p,t){
+  const before=stageOf(p);
+  t.fed=true;p.fed++;p.lastFed=Date.now();(p.eaten=p.eaten||[]).push({t:t.text,at:Date.now()});
+  const k=dkey();S.days[k]=(S.days[k]||0)+1;
+  const ks=Object.keys(S.days).sort();while(ks.length>120)delete S.days[ks.shift()];
+  if(p.fed>=p.goal&&!p.grownAt)p.grownAt=Date.now();
+  save();render();anim("jump");burst(5);
+  const after=stageOf(p);
+  if(after>before)setTimeout(()=>levelUp(p,after),550);else say(pick(FED));
+}
+document.addEventListener("click",e=>{
+  const nb=e.target.closest("[data-new]");if(nb){newPetFlow();return}
+  const chip=e.target.closest("[data-pet]");if(chip){S.active=chip.dataset.pet;save();render();const p=cur();say(`Hi, it's ${p.name}!`);anim("wiggle");return}
+  const b=e.target.closest("[data-act]");
+  if(b&&b.closest("#panel")){
+    const p=cur(),id=b.closest("[data-task]").dataset.task,t=p.tasks.find(x=>x.id===id);if(!t)return;
+    if(b.dataset.act==="del"){p.tasks=p.tasks.filter(x=>x!==t);save();render();return}
+    t.done=!t.done;
+    if(t.done&&!t.fed)feed(p,t);else{save();render()}
+    return;
+  }
+  if(e.target.closest("#clearDone")){const p=cur();p.tasks=p.tasks.filter(t=>!t.done);save();render();return}
+  if(e.target.closest("#editPet")){editFlow(cur());return}
+  if(e.target.closest("#sendHome")){sendHome(cur());return}
+  if(e.target.closest("#openMeadow")){meadowFlow("res");return}
+  if(e.target.closest("#openBook")){meadowFlow("book");return}
+});
+document.addEventListener("submit",e=>{
+  if(e.target.id!=="addForm")return;e.preventDefault();
+  const i=$("newTask"),v=i.value.trim();if(!v)return;const p=cur();
+  const t={id:uid(),text:v,done:false,fed:false};p.tasks.unshift(t);save();render(t.id);
+  $("newTask").focus();
+  if(p.tasks.length===1&&p.fed===0)say("Ooh, my first task!");
+});
+function petHero(){const p=cur();if(!p){newPetFlow();return}anim("wiggle");burst(2);say(mood(p)==="sleepy"?"*yawn*… finish a task to wake me up":pick(LINES[SP[p.species].kind]))}
+$("hero").addEventListener("click",petHero);
+$("hero").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();petHero()}});
+
+/* ================= modals ================= */
+function modal(html){
+  $("modalRoot").innerHTML=`<div class="overlay" id="ov"><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`;
+  $("ov").addEventListener("click",e=>{if(e.target.id==="ov"||e.target.closest(".x"))closeModal()});
+  return $("ov").firstElementChild;
+}
+function closeModal(){$("modalRoot").innerHTML=""}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("ov"))closeModal()});
+
+let carry=null;
+function defaultLabel(pp){const d=new Date();if(pp==="day")return d.toLocaleDateString(undefined,{weekday:"long"});if(pp==="week"){const m=new Date(d);m.setDate(d.getDate()-((d.getDay()+6)%7));return"Week of "+m.toLocaleDateString(undefined,{month:"short",day:"numeric"})}return""}
+function newPetFlow(){
+  let pp="day",goal=PURPOSE.day.goal;
+  const sh=modal(`<button class="x" type="button" aria-label="Close">×</button><h2>A new blind box!</h2><p class="sub">First, what's this pet for?</p>
+   <div class="purposes" id="pps">${Object.entries(PURPOSE).map(([k,v])=>`<button type="button" class="pcard" data-pp="${k}" aria-pressed="${k===pp}"><span class="pi">${v.i}</span><b>${v.t}</b><span>${v.d}</span></button>`).join("")}</div>
+   <div class="field"><label for="ppLabel" id="ppLabelL">Name this day</label><input id="ppLabel" maxlength="40"></div>
+   <div class="field"><label>Tasks to grow up</label><div class="stepper"><button type="button" id="gm" aria-label="Fewer">−</button><output id="gv"></output><button type="button" id="gp" aria-label="More">+</button><small id="gh"></small></div></div>
+   ${carry?`<p class="sub" style="margin:0">${carry.length} leftover task${carry.length>1?"s":""} will come along to the new pet.</p>`:""}
+   <button class="btn wide" type="button" id="getBox">Get my blind box</button>`);
+  const upd=()=>{
+    sh.querySelectorAll("[data-pp]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.pp===pp));
+    $("gv").textContent=goal;$("gh").textContent=goal===PURPOSE[pp].goal?"suggested":"";
+    $("ppLabelL").textContent=pp==="day"?"Name this day":pp==="week"?"Name this week":"What's the focus?";
+  };
+  const setPP=k=>{pp=k;goal=PURPOSE[k].goal;$("ppLabel").value=defaultLabel(k);$("ppLabel").placeholder=k==="focus"?"e.g. Gym, Job apps, Art":"";upd()};
+  sh.querySelector("#pps").addEventListener("click",e=>{const b=e.target.closest("[data-pp]");if(b)setPP(b.dataset.pp)});
+  $("gm").onclick=()=>{goal=Math.max(1,goal-1);upd()};$("gp").onclick=()=>{goal=Math.min(200,goal+1);upd()};
+  setPP("day");
+  $("getBox").onclick=()=>openBox({purpose:pp,label:$("ppLabel").value.trim().slice(0,40),goal});
+}
+function openBox(cfg){
+  const sh=modal(`<button class="x" type="button" aria-label="Close">×</button><h2>Your blind box</h2><div class="boxstage"><div class="bx" id="bx" role="button" tabindex="0" aria-label="Open the box">${boxSVG()}</div><div class="tapme">Tap to open!</div></div>`);
+  let opened=false;
+  const go=()=>{if(opened)return;opened=true;$("bx").classList.add("opening");sh.querySelector(".tapme").textContent="…!";setTimeout(()=>reveal(cfg,rollSpecies()),750)};
+  $("bx").addEventListener("click",go);$("bx").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}});
+}
+function reveal(cfg,spId){
+  const sp=SP[spId],isNew=!S.seen[spId];
+  modal(`<div class="reveal"><div class="rays"></div><div class="pet">${petSVG(sp,{stage:0,mood:"happy"})}</div>
+   <span class="tag r-${sp.r}" style="position:relative">${RNAME[sp.r]}${sp.r==="secret"?" ✦":""}</span>
+   <h3>It's a ${sp.name}!${isNew?`<span class="newbadge">NEW!</span>`:""}</h3></div>
+   <div class="field"><label for="petName">Name your new friend</label><input id="petName" maxlength="18" value="${esc(pick(NAMES))}"></div>
+   <button class="btn wide" type="button" id="hello">Say hi!</button>`);
+  const make=()=>{
+    const name=($("petName").value.trim()||pick(NAMES)).slice(0,18);
+    const p={id:uid(),species:spId,name,purpose:cfg.purpose,label:cfg.label,goal:cfg.goal,fed:0,born:Date.now(),tasks:carry?carry.map(t=>({...t})):[],eaten:[],home:false};
+    carry=null;S.seen[spId]=true;S.pets.push(p);S.active=p.id;save();closeModal();lastHero="";render();
+    setTimeout(()=>{anim("jump");burst(6,"✿");say(`Hi! I'm ${p.name}! Feed me tasks!`,3200)},150);
+  };
+  $("hello").onclick=make;$("petName").addEventListener("keydown",e=>{if(e.key==="Enter")make()});
+}
+function sendHome(p){
+  const left=p.tasks.filter(t=>!t.done);
+  const finish=()=>{p.home=true;p.homeAt=Date.now();p.tasks=p.tasks.filter(t=>t.done);const a=activePets();S.active=a.length?a[0].id:null;save();closeModal();lastHero="";render();toast(`${p.name} moved into the Meadow ✿`);burst(8,"✿")};
+  if(!left.length){finish();return}
+  const others=activePets().filter(x=>x.id!==p.id);
+  const sh=modal(`<button class="x" type="button" aria-label="Close">×</button><h2>${esc(p.name)} still has ${left.length} unfinished task${left.length>1?"s":""}</h2><p class="sub">Who should take ${left.length>1?"them":"it"} over?</p>
+   <div class="choices">${others.map(o=>`<button type="button" class="choice" data-to="${o.id}"><span class="av">${petSVG(SP[o.species],{stage:stageOf(o),anim:false,noShadow:true})}</span><span>Give to ${esc(o.name)}<br><small style="color:var(--muted)">${purposeLine(o)}</small></span></button>`).join("")}
+   <button type="button" class="choice" data-to="new"><span class="av" style="place-items:center;background:var(--pink-soft)">${'<svg viewBox="0 0 200 200" width="40">'+boxSVG().slice(boxSVG().indexOf(">")+1)}</span><span>A new blind box pet</span></button>
+   <button type="button" class="choice danger" data-to="drop"><span class="av" style="place-items:center;background:#fff;font-size:22px">×</span><span>Delete ${left.length>1?"them":"it"}</span></button></div>`);
+  sh.querySelector(".choices").addEventListener("click",e=>{const b=e.target.closest("[data-to]");if(!b)return;const to=b.dataset.to;
+    const moved=left.map(t=>({id:uid(),text:t.text,done:false,fed:false}));
+    if(to==="new"){finish();carry=moved;newPetFlow();return}
+    if(to!=="drop"){const o=S.pets.find(x=>x.id===to);o.tasks=moved.concat(o.tasks)}
+    finish();});
+}
+function editFlow(p){
+  let goal=p.goal,confirmDel=false;
+  const sh=modal(`<button class="x" type="button" aria-label="Close">×</button><h2>Edit ${esc(p.name)}</h2>
+   <div class="field"><label for="eName">Name</label><input id="eName" maxlength="18" value="${esc(p.name)}"></div>
+   <div class="field"><label for="eLabel">${PURPOSE[p.purpose].t} · label</label><input id="eLabel" maxlength="40" value="${esc(p.label||"")}"></div>
+   <div class="field"><label>Tasks to grow up</label><div class="stepper"><button type="button" id="gm" aria-label="Fewer">−</button><output id="gv">${goal}</output><button type="button" id="gp" aria-label="More">+</button><small>${p.fed} eaten so far</small></div></div>
+   <button class="btn green wide" type="button" id="eSave">Save</button>
+   <button class="link danger" type="button" id="eDel" style="justify-self:center">Say goodbye to ${esc(p.name)}</button>`);
+  $("gm").onclick=()=>{goal=Math.max(1,goal-1);$("gv").textContent=goal};$("gp").onclick=()=>{goal=Math.min(200,goal+1);$("gv").textContent=goal};
+  $("eSave").onclick=()=>{const before=stageOf(p);p.name=($("eName").value.trim()||p.name).slice(0,18);p.label=$("eLabel").value.trim().slice(0,40);p.goal=goal;if(p.fed>=p.goal&&!p.grownAt)p.grownAt=Date.now();if(p.fed<p.goal)p.grownAt=null;save();closeModal();render();if(stageOf(p)>before)levelUp(p,stageOf(p))};
+  $("eDel").onclick=()=>{if(!confirmDel){confirmDel=true;$("eDel").textContent=`Tap again to delete ${p.name} for good`;return}
+    S.pets=S.pets.filter(x=>x!==p);const a=activePets();S.active=a.length?a[0].id:null;save();closeModal();lastHero="";render()};
+}
+function meadowFlow(tab){
+  const res=residents().slice().reverse(),found=SPECIES.filter(s=>S.seen[s.id]).length;
+  const body=tab==="res"
+    ?(res.length?`<div class="grid">${res.map(r=>`<button type="button" class="card" data-res="${r.id}">${petSVG(SP[r.species],{stage:3,anim:false})}<b>${esc(r.name)}</b><span>${purposeLine(r)}</span><span>${(r.eaten||[]).length} tasks · ${fmt(r.born)}–${fmt(r.homeAt||r.born)}</span></button>`).join("")}</div>`
+      :`<div class="meadowempty">Nobody lives here yet. When a pet is all grown up, send it to the Meadow and it'll play here forever.</div>`)
+    :`<p class="sub" style="margin:0">${found} of ${SPECIES.length} found. Secret ones are very rare!</p><div class="grid">${SPECIES.map(s=>S.seen[s.id]?`<div class="card">${petSVG(s,{stage:3,anim:false})}<b>${s.name}</b><span class="tag r-${s.r}" style="font-size:10px;padding:1px 7px">${RNAME[s.r]}</span></div>`:`<div class="card locked">${petSVG(s,{stage:3,anim:false})}<b>???</b><span class="tag r-${s.r}" style="font-size:10px;padding:1px 7px">${RNAME[s.r]}</span></div>`).join("")}</div>`;
+  const sh=modal(`<button class="x" type="button" aria-label="Close">×</button><h2>${tab==="res"?"The Meadow":"Collection"}</h2>
+   <div class="tabs" role="tablist"><button type="button" role="tab" aria-selected="${tab==="res"}" data-tab="res">Residents (${res.length})</button><button type="button" role="tab" aria-selected="${tab==="book"}" data-tab="book">Collection</button></div>${body}`);
+  sh.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(b)meadowFlow(b.dataset.tab)});
+  sh.querySelectorAll("[data-res]").forEach(b=>b.onclick=()=>residentFlow(S.pets.find(x=>x.id===b.dataset.res)));
+}
+function residentFlow(r){
+  const sp=SP[r.species],e=(r.eaten||[]).slice().reverse();
+  const sh=modal(`<button class="x" type="button" aria-label="Close">×</button><div class="reveal"><div class="pet" style="width:150px">${petSVG(sp,{stage:3,sparkle:true})}</div><h3>${esc(r.name)}</h3><div class="tags" style="justify-content:center"><span class="tag purpose">${purposeLine(r)}</span><span class="tag r-${sp.r}">${sp.name}</span></div>
+   <p class="sub" style="margin:4px 0 0">Born ${fmt(r.born)} · moved to the Meadow ${fmt(r.homeAt||r.born)}</p></div>
+   <h2 style="font-size:18px">Tasks ${esc(r.name)} ate (${e.length})</h2><ul class="eaten">${e.map(x=>`<li>${esc(x.t)}<span>${fmt(x.at)}</span></li>`).join("")||`<li>No tasks recorded</li>`}</ul>
+   <button class="btn plain wide" type="button" id="back">Back to the Meadow</button>`);
+  $("back").onclick=()=>meadowFlow("res");
+}
+
+/* ================= boot ================= */
+render();
+setTimeout(()=>{const p=cur();if(p)say(pick(["I missed you!!","You're back!","Hi hi hi!","Let's get stuff done"]));else say("Psst… tap the box!",3000)},700);
+})();
+</script>
