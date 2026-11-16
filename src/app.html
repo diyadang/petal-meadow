@@ -316,13 +316,18 @@ function petSVG(sp,o={}){
   const ec=sp.eye;
   if(md==="sleepy")s+=mirror(`<path d="M73 102 Q80 108 87 102" fill="none" stroke="${ec}" stroke-width="3.5" stroke-linecap="round"/>`)+`<text class="zz" x="150" y="52" font-size="20">z</text>`;
   else if(md==="happy")s+=mirror(`<path d="M73 104 Q80 95 87 104" fill="none" stroke="${ec}" stroke-width="3.5" stroke-linecap="round"/>`);
-  else s+=`<g class="${o.anim===false?"":"blink"}">`+mirror(`<ellipse cx="80" cy="101" rx="5.8" ry="7" fill="${ec}"/><circle cx="82" cy="98.5" r="2" fill="#fff"/>`)+`</g>`;
+  else s+=`<g class="${o.anim===false?"":"blink"}">`+(st===0?mirror(`<ellipse cx="80" cy="101" rx="8" ry="9.5" fill="${ec}"/><circle cx="83" cy="97" r="3.2" fill="#fff"/><circle cx="77.5" cy="105" r="1.5" fill="#fff"/>`):mirror(`<ellipse cx="80" cy="101" rx="5.8" ry="7" fill="${ec}"/><circle cx="82" cy="98.5" r="2" fill="#fff"/>`))+`</g>`;
   s+=mirror(`<ellipse cx="65" cy="115" rx="9.5" ry="6" fill="#ffadc4" opacity=".75"/>`);
   if(sp.kind==="bunny")s+=mirror(`<path d="M62 112 L60 117 M67 112 L65 117" stroke="#f08aa8" stroke-width="2" stroke-linecap="round" opacity=".7"/>`)+`<path d="M96.5 108 L103.5 115 M103.5 108 L96.5 115" stroke="${ec}" stroke-width="3" stroke-linecap="round"/>`;
   if(sp.kind==="cat")s+=`<ellipse cx="100" cy="110" rx="3.2" ry="2.4" fill="#ff9fb0"/><path d="M92.5 113.5 Q96.3 118 100 113.5 Q103.7 118 107.5 113.5" fill="none" stroke="${L}" stroke-width="2.6" stroke-linecap="round"/>`+mirror(`<path d="M42 106 L56 108 M43 114 L56 113" stroke="${L}" stroke-width="2.2" stroke-linecap="round"/>`);
   if(sp.kind==="bear")s+=`<ellipse cx="100" cy="110" rx="5.5" ry="3.8" fill="${L}"/><path d="M93.5 116 Q96.8 120 100 116 Q103.2 120 106.5 116" fill="none" stroke="${L}" stroke-width="2.6" stroke-linecap="round"/>`;
   if(sp.kind==="dog")s+=`<path d="M96 118 Q100 128 104 118 Z" fill="#ff8fa8" stroke="${L}" stroke-width="2.2" stroke-linejoin="round"/><path d="M92 116 Q100 121 108 116" fill="none" stroke="${L}" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="100" cy="110" rx="5.5" ry="4.3" fill="#2b1f1c"/>`;
   if(sp.kind==="deer")s+=`<ellipse cx="100" cy="111" rx="4.5" ry="3.2" fill="${L}"/><path d="M95.5 116.5 Q100 120 104.5 116.5" fill="none" stroke="${L}" stroke-width="2.6" stroke-linecap="round"/>`;
+  /* baby: pacifier + hair curl */
+  if(st===0){
+    s+=`<circle cx="100" cy="129" r="5.5" fill="none" stroke="${L}" stroke-width="5.5"/><circle cx="100" cy="129" r="5.5" fill="none" stroke="#8fd18a" stroke-width="2.6"/><ellipse cx="100" cy="120.5" rx="12" ry="7.5" fill="#ffb3cb" stroke="${L}" stroke-width="2.6"/><circle cx="100" cy="120.5" r="3.4" fill="#fff" stroke="${L}" stroke-width="1.8"/>`;
+    if(!sp.leaf)s+=`<path d="M100 54 C95 42 108 37 111 45 C112 50 106 51 105 47" fill="none" stroke="${L}" stroke-width="3.4" stroke-linecap="round"/>`;
+  }
   /* species extras */
   if(sp.leaf)s+=`<path d="M100 54 Q90 40 82 48 Q92 52 100 54 Q110 38 118 46 Q108 52 100 54 Q100 42 96 36" fill="#8fd18a" stroke="${L}" stroke-width="3" stroke-linejoin="round"/><g fill="#fff3b0"><circle cx="72" cy="80" r="1.8"/><circle cx="128" cy="80" r="1.8"/><circle cx="80" cy="128" r="1.6"/><circle cx="122" cy="130" r="1.6"/></g>`;
   if(sp.flower&&st<2)s+=flower(132,58,7,"#ff8fb1");
@@ -516,7 +521,7 @@ function openBox(cfg){
 }
 function reveal(cfg,spId){
   const sp=SP[spId],isNew=!S.seen[spId];
-  modal(`<div class="reveal"><div class="rays"></div><div class="pet">${petSVG(sp,{stage:0,mood:"happy"})}</div>
+  modal(`<div class="reveal"><div class="rays"></div><div class="pet">${petSVG(sp,{stage:0})}</div>
    <span class="tag r-${sp.r}" style="position:relative">${RNAME[sp.r]}${sp.r==="secret"?" ✦":""}</span>
    <h3>omg it's a ${sp.name}!!${isNew?`<span class="newbadge">NEW!</span>`:""}</h3></div>
    <div class="field"><label for="petName">name ur new friend</label><input id="petName" maxlength="18" value="${esc(pick(NAMES))}"></div>
