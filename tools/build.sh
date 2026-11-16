@@ -10,7 +10,7 @@ printf '%s\n' '<!doctype html>' '<html lang="en">' '<head>' '<meta charset="utf-
  '<meta name="apple-mobile-web-app-capable" content="yes">' \
  '<meta name="mobile-web-app-capable" content="yes">' \
  '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">' \
- '<meta name="apple-mobile-web-app-title" content="Petal Meadow">' \
+ '<meta name="apple-mobile-web-app-title" content="nibble">' \
  '<link rel="manifest" href="manifest.webmanifest">' \
  '<link rel="apple-touch-icon" href="icons/icon-180.png">' \
  '<link rel="icon" type="image/png" href="icons/icon-192.png">' \

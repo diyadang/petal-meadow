@@ -7,14 +7,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Petal Meadow">
+<meta name="apple-mobile-web-app-title" content="nibble">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <style>html,body{margin:0;height:100%}body{-webkit-text-size-adjust:100%}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
-<title>Petal Meadow</title>
+<title>nibble</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&display=swap">
@@ -68,8 +68,8 @@ button{cursor:pointer}
 .fx{position:absolute;inset:0;pointer-events:none;z-index:6}
 .fx span{position:absolute;font-size:22px;color:var(--pink-deep);animation:rise 1.3s ease-out forwards;text-shadow:0 0 0 #fff}
 @keyframes rise{0%{opacity:0;transform:translate(0,0) scale(.5)}20%{opacity:1}100%{opacity:0;transform:translate(var(--dx),-130px) scale(1.25)}}
-.bubble{position:absolute;left:50%;bottom:calc(7% + min(52vw,230px) * .92);transform:translateX(-50%);z-index:5;max-width:78%;background:#fff;border:2.5px solid var(--ink);border-radius:20px;padding:8px 14px;font-family:var(--display);font-weight:500;font-size:16px;line-height:1.25;text-align:center;transition:opacity .25s,transform .25s;white-space:normal}
-@media (min-width:480px){.bubble{bottom:calc(7% + 215px)}}
+.bubble{position:absolute;left:50%;bottom:calc(7% + min(52vw,230px) * var(--k,.86));transform:translateX(-50%);z-index:6;max-width:70%;background:#fff;border:2.5px solid var(--ink);border-radius:20px;padding:8px 14px;font-family:var(--display);font-weight:500;font-size:16px;line-height:1.25;text-align:center;transition:opacity .25s,transform .25s;white-space:normal}
+@media (min-width:480px){.bubble{bottom:calc(7% + 230px * var(--k,.86))}}
 .bubble::after{content:"";position:absolute;left:50%;bottom:-10px;margin-left:-8px;width:16px;height:16px;background:#fff;border-right:2.5px solid var(--ink);border-bottom:2.5px solid var(--ink);transform:rotate(45deg) scaleY(.8)}
 .bubble[data-hide="1"]{opacity:0;transform:translate(-50%,8px);pointer-events:none}
 
@@ -215,8 +215,8 @@ ul.tasks{list-style:none;margin:0;padding:0;display:grid;gap:8px}
     <div class="bubble" id="bubble" data-hide="1"></div>
     <div class="stats" id="stats"></div>
     <div class="side">
-      <button class="sticker" id="openMeadow" type="button"><span class="ic" id="meadowIc"></span>Meadow</button>
-      <button class="sticker" id="openBook" type="button"><span class="ic" id="bookIc"></span>Collection</button>
+      <button class="sticker" id="openMeadow" type="button"><span class="ic" id="meadowIc"></span>meadow</button>
+      <button class="sticker" id="openBook" type="button"><span class="ic" id="bookIc"></span>sticker book</button>
     </div>
     <div class="fx" id="fx"></div>
   </section>
@@ -247,12 +247,12 @@ const SPECIES=[
 ];
 const SP=Object.fromEntries(SPECIES.map(s=>[s.id,s]));
 const ODDS={common:58,uncommon:28,rare:11,secret:3};
-const RNAME={common:"Common",uncommon:"Uncommon",rare:"Rare",secret:"Secret"};
-const STAGES=["Baby","Little","Big","Grown-up"];
+const RNAME={common:"common",uncommon:"uncommon",rare:"rare",secret:"secret"};
+const STAGES=["baby","lil","big","grown-up"];
 const NAMES=["Mochi","Peaches","Dumpling","Clover","Biscuit","Tofu","Sakura","Bean","Pudding","Momo","Honey","Pebble","Sprout","Waffles","Lychee","Boba","Marshmallow","Poppy","Daisy","Bun","Cocoa","Toffee","Petal","Maple","Sesame","Butter"];
-const LINES={cat:["nya~","*purrs*","pet me more!","*slow blink*","mrrp?"],bunny:["*nibble nibble*","boing boing!","*happy binky*","carrots later?"],bear:["bear hug!!","*happy grumble*","is that honey?","you're the best"],dog:["woof woof!","*tail wag intensifies*","best friend!!","throw the ball?"],deer:["*happy hops*","the flowers smell nice","*ear flick*","let's go for a walk"]};
-const FED=["Yum!!","Nom nom nom","More please!","So tasty!","You did it!!","Proud of you!","*happy wiggle*","That was a good one"];
-const PURPOSE={day:{t:"Today",i:"☀",d:"grows up in a day",goal:5},week:{t:"This week",i:"✿",d:"a week-long buddy",goal:20},focus:{t:"Focus",i:"♥",d:"for one area of life",goal:30}};
+const LINES={cat:["nya~","*purrs aggressively*","pet me more or else","*slow blink* (that means i love u)","mrrp?"],bunny:["*nibble nibble*","boing boing!","*does a happy binky*","is that a carrot??"],bear:["bear hug!!","*happy grumble*","do u have any honey","ur my favorite human"],dog:["woof!! woof!!","*tail wag intensifies*","best friend!!!","walk? walk?? walk???"],deer:["*happy hops*","the flowers smell so good today","*ear flick*","let's go on a lil walk"]};
+const FED=["nom nom nom","yummy!!","u ate that (literally)","more pls","so proud of u","another one!!","*happy wiggle*","productive queen behavior"];
+const PURPOSE={day:{t:"today",i:"☀",d:"grows up in a day",goal:5},week:{t:"this week",i:"✿",d:"ur week-long buddy",goal:20},focus:{t:"focus",i:"♥",d:"for one part of ur life",goal:30}};
 
 const KEY="petal-meadow-v2";
 let S=load();
@@ -400,11 +400,12 @@ let lastHero="";
 function render(newTask){renderScene();renderSwitcher();renderPanel(newTask)}
 function renderScene(){
   const p=cur(),t=S.days[dkey()]||0;
-  $("stats").innerHTML=`<div class="lbl">Today</div><b>${t}</b> <span style="font-weight:800">${t===1?"task":"tasks"} done</span><div class="hearts" aria-label="${Math.min(5,t)} of 5 hearts">${"♥".repeat(Math.min(5,t))}<i>${"♥".repeat(5-Math.min(5,t))}</i></div>${streak()>1?`<div class="streak">✿ ${streak()} day streak</div>`:""}`;
+  $("stats").innerHTML=`<div class="lbl">today</div><b>${t}</b> <span style="font-weight:800">${t===1?"thing":"things"} done</span><div class="hearts" aria-label="${Math.min(5,t)} of 5 hearts">${"♥".repeat(Math.min(5,t))}<i>${"♥".repeat(5-Math.min(5,t))}</i></div>${streak()>1?`<div class="streak">✿ ${streak()} days in a row!!</div>`:""}`;
   let h;
   if(p){h=petSVG(SP[p.species],{stage:stageOf(p),mood:mood(p),sparkle:true});$("hero").classList.remove("box-hero");$("hero").setAttribute("aria-label",`${p.name}, tap to pet`)}
   else{h=boxSVG();$("hero").classList.add("box-hero");$("hero").setAttribute("aria-label","Open a blind box")}
   if(h!==lastHero){$("hero").innerHTML=h;lastHero=h}
+  $("bubble").style.setProperty("--k",p?((13+164*[.7,.82,.92,1][stageOf(p)])/205+.03+(/bunny|deer/.test(SP[p.species].kind)?.09*[.7,.82,.92,1][stageOf(p)]:0)).toFixed(3):".8");
   const res=residents(),mc=$("meadowCount");mc.hidden=!res.length;mc.textContent=res.length;
   const show=res.slice(-7);
   $("walkers").innerHTML=show.map((r,i)=>{const R=rng(r.id.split("").reduce((a,c)=>a+c.charCodeAt(0),0));
@@ -415,14 +416,14 @@ function renderSwitcher(){
   const a=activePets(),p=cur();
   $("switcher").hidden=!a.length;
   $("switcher").innerHTML=a.map(x=>`<button class="chip" type="button" data-pet="${x.id}" aria-pressed="${p&&p.id===x.id}"><span class="av">${petSVG(SP[x.species],{stage:stageOf(x),anim:false,noShadow:true})}${x.fed>=x.goal?`<span class="done-dot">★</span>`:""}</span><span class="nm">${esc(x.name)}</span></button>`).join("")+
-    `<button class="chip add" type="button" data-new="1" aria-label="New blind box"><span class="av">+</span><span class="nm">New box</span></button>`;
+    `<button class="chip add" type="button" data-new="1" aria-label="New blind box"><span class="av">+</span><span class="nm">new box</span></button>`;
 }
 function purposeLine(p){return `${PURPOSE[p.purpose].t}${p.label?` · ${esc(p.label)}`:""}`}
 function renderPanel(newTask){
   const p=cur(),el=$("panel");
   if(!p){
     const r=residents().length;
-    el.innerHTML=`<div class="welcome"><h1>${r?"Ready for a new friend?":"Welcome to Petal Meadow"}</h1><p>${r?"Your grown-up pets are playing in the Meadow. Open a new blind box to start another one.":"Every pet comes out of a blind box. Give it a purpose, finish tasks to feed it, and watch it grow up."}</p><button class="btn wide" type="button" data-new="1">Open a blind box</button></div>`;
+    el.innerHTML=`<div class="welcome"><h1>${r?"ready for a new friend?":"welcome to ur lil meadow ✿"}</h1><p>${r?"ur grown-up babies are off frolicking in the meadow. open a new box to start the next one ✿":"every pet comes in a blind box. give it a job, feed it ur finished tasks, and watch it grow up (˶ᵔ ᵕ ᵔ˶)"}</p><button class="btn wide" type="button" data-new="1">open a blind box ♡</button></div>`;
     return;
   }
   const sp=SP[p.species],st=stageOf(p),grown=p.fed>=p.goal;
@@ -433,11 +434,11 @@ function renderPanel(newTask){
     <div class="tags"><span class="tag purpose">${purposeLine(p)}</span><span class="tag stage">${STAGES[st]}</span><span class="tag r-${sp.r}">${sp.name}</span></div></div>
     <button class="iconbtn" type="button" id="editPet" aria-label="Edit ${esc(p.name)}">${ICON.pencil}</button></div>
   <div class="prog"><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${p.goal}" aria-valuenow="${Math.min(p.fed,p.goal)}" aria-label="Growth"><i class="${grown?"full":""}" style="width:${Math.min(100,p.fed/p.goal*100)}%"></i></div>
-    <div class="meta"><span>${Math.min(p.fed,p.goal)} / ${p.goal} treats</span><span>${grown?"All grown up!":`${STAGES[nextSt]} at ${stageAt(p,nextSt)}`}</span></div></div>
-  ${grown?`<div class="grown"><b>${esc(p.name)} is all grown up!</b><span>When you're ready, send ${esc(p.name)} to live in the Meadow. You can keep adding tasks here until then.</span><button class="btn green" type="button" id="sendHome">Send to the Meadow</button></div>`:""}
-  <form class="add" id="addForm" autocomplete="off"><input id="newTask" maxlength="140" placeholder="Add a task for ${esc(p.name)}…" aria-label="New task" enterkeyhint="done"><button class="btn" type="submit">Add</button></form>
-  <ul class="tasks" id="todo">${act.length?act.map(t=>taskRow(t,t.id===newTask)).join(""):`<li class="empty">${p.tasks.length?`All done! ${esc(p.name)} is full and happy.`:`${esc(p.name)} is hungry. Add a task, then tap the circle when it's done.`}</li>`}</ul>
-  ${dn.length?`<div class="sec"><h2>Done (${dn.length})</h2><button class="link" type="button" id="clearDone">Clear done</button></div><ul class="tasks">${dn.map(t=>taskRow(t)).join("")}</ul>`:""}`;
+    <div class="meta"><span>${Math.min(p.fed,p.goal)} / ${p.goal} snacks</span><span>${grown?"all grown up!! ♡":`${STAGES[nextSt]} at ${stageAt(p,nextSt)}`}</span></div></div>
+  ${grown?`<div class="grown"><b>omg ${esc(p.name)} is all grown up</b><span>send ${esc(p.name)} off to live in the meadow whenever ur ready. no rush, u can keep adding tasks here till then</span><button class="btn green" type="button" id="sendHome">send to the meadow ✿</button></div>`:""}
+  <form class="add" id="addForm" autocomplete="off"><input id="newTask" maxlength="140" placeholder="what's on ur list?" aria-label="New task" enterkeyhint="done"><button class="btn" type="submit">add</button></form>
+  <ul class="tasks" id="todo">${act.length?act.map(t=>taskRow(t,t.id===newTask)).join(""):`<li class="empty">${p.tasks.length?`list cleared!! ${esc(p.name)} is so full rn ♡`:`${esc(p.name)} is hungry!! add a task, then tap the circle when it's done to feed them`}</li>`}</ul>
+  ${dn.length?`<div class="sec"><h2>eaten (${dn.length})</h2><button class="link" type="button" id="clearDone">clear</button></div><ul class="tasks">${dn.map(t=>taskRow(t)).join("")}</ul>`:""}`;
 }
 function taskRow(t,isNew){return `<li class="task${t.done?" done":""}${isNew?" new":""}" data-task="${t.id}"><button class="check" type="button" data-act="toggle" aria-label="${t.done?"Mark not done":"Mark done"}: ${esc(t.text)}">${ICON.check}</button><span class="txt">${esc(t.text)}</span><button class="del" type="button" data-act="del" aria-label="Delete: ${esc(t.text)}">×</button></li>`}
 
@@ -448,9 +449,9 @@ function anim(c){const h=$("hero");h.classList.remove("wiggle","jump");void h.of
 function burst(n,ch="♥"){const fx=$("fx");for(let i=0;i<n;i++){const s=document.createElement("span");s.textContent=ch;s.style.left=(40+Math.random()*20)+"%";s.style.bottom=(22+Math.random()*18)+"%";s.style.setProperty("--dx",(Math.random()*90-45)+"px");s.style.animationDelay=(i*.07)+"s";fx.appendChild(s);setTimeout(()=>s.remove(),1800)}}
 function levelUp(p,st){
   const d=document.createElement("div");d.className="levelup";
-  d.innerHTML=`<div><b>${esc(p.name)} grew!</b>${st===3?"All grown up, with a flower crown":"Now a "+STAGES[st].toLowerCase()+" "+SP[p.species].name.toLowerCase()}</div>`;
+  d.innerHTML=`<div><b>${esc(p.name)} grew!!</b>${st===3?"all grown up + a flower crown ✿":"look, a "+STAGES[st]+" "+SP[p.species].name.toLowerCase()+" now"}</div>`;
   $("scene").appendChild(d);burst(12,"✿");
-  setTimeout(()=>{d.remove();say(st===3?"I'm all grown up! Thank you!!":"Look how big I'm getting!",3000)},1900);
+  setTimeout(()=>{d.remove();say(st===3?"i'm all grown up!! thank u for raising me ♡":"look how big i'm getting!!",3000)},1900);
 }
 function toast(t){const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}
 
@@ -467,7 +468,7 @@ function feed(p,t){
 }
 document.addEventListener("click",e=>{
   const nb=e.target.closest("[data-new]");if(nb){newPetFlow();return}
-  const chip=e.target.closest("[data-pet]");if(chip){S.active=chip.dataset.pet;save();render();const p=cur();say(`Hi, it's ${p.name}!`);anim("wiggle");return}
+  const chip=e.target.closest("[data-pet]");if(chip){S.active=chip.dataset.pet;save();render();const p=cur();say(`hiii it's ${p.name}!`);anim("wiggle");return}
   const b=e.target.closest("[data-act]");
   if(b&&b.closest("#panel")){
     const p=cur(),id=b.closest("[data-task]").dataset.task,t=p.tasks.find(x=>x.id===id);if(!t)return;
@@ -487,9 +488,9 @@ document.addEventListener("submit",e=>{
   const i=$("newTask"),v=i.value.trim();if(!v)return;const p=cur();
   const t={id:uid(),text:v,done:false,fed:false};p.tasks.unshift(t);save();render(t.id);
   $("newTask").focus();
-  if(p.tasks.length===1&&p.fed===0)say("Ooh, my first task!");
+  if(p.tasks.length===1&&p.fed===0)say("ooh my first task!!");
 });
-function petHero(){const p=cur();if(!p){newPetFlow();return}anim("wiggle");burst(2);say(mood(p)==="sleepy"?"*yawn*… finish a task to wake me up":pick(LINES[SP[p.species].kind]))}
+function petHero(){const p=cur();if(!p){newPetFlow();return}anim("wiggle");burst(2);say(mood(p)==="sleepy"?"*yawn*… feed me a task to wake me up":pick(LINES[SP[p.species].kind]))}
 $("hero").addEventListener("click",petHero);
 $("hero").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();petHero()}});
 
@@ -503,28 +504,28 @@ function closeModal(){$("modalRoot").innerHTML=""}
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("ov"))closeModal()});
 
 let carry=null;
-function defaultLabel(pp){const d=new Date();if(pp==="day")return d.toLocaleDateString(undefined,{weekday:"long"});if(pp==="week"){const m=new Date(d);m.setDate(d.getDate()-((d.getDay()+6)%7));return"Week of "+m.toLocaleDateString(undefined,{month:"short",day:"numeric"})}return""}
+function defaultLabel(pp){const d=new Date();if(pp==="day")return d.toLocaleDateString(undefined,{weekday:"long"}).toLowerCase();if(pp==="week"){const m=new Date(d);m.setDate(d.getDate()-((d.getDay()+6)%7));return"week of "+m.toLocaleDateString(undefined,{month:"short",day:"numeric"})}return""}
 function newPetFlow(){
   let pp="day",goal=PURPOSE.day.goal;
-  const sh=modal(`<button class="x" type="button" aria-label="Close">×</button><h2>A new blind box!</h2><p class="sub">First, what's this pet for?</p>
+  const sh=modal(`<button class="x" type="button" aria-label="Close">×</button><h2>new blind box!!</h2><p class="sub">first, what's this lil one for?</p>
    <div class="purposes" id="pps">${Object.entries(PURPOSE).map(([k,v])=>`<button type="button" class="pcard" data-pp="${k}" aria-pressed="${k===pp}"><span class="pi">${v.i}</span><b>${v.t}</b><span>${v.d}</span></button>`).join("")}</div>
-   <div class="field"><label for="ppLabel" id="ppLabelL">Name this day</label><input id="ppLabel" maxlength="40"></div>
-   <div class="field"><label>Tasks to grow up</label><div class="stepper"><button type="button" id="gm" aria-label="Fewer">−</button><output id="gv"></output><button type="button" id="gp" aria-label="More">+</button><small id="gh"></small></div></div>
-   ${carry?`<p class="sub" style="margin:0">${carry.length} leftover task${carry.length>1?"s":""} will come along to the new pet.</p>`:""}
-   <button class="btn wide" type="button" id="getBox">Get my blind box</button>`);
+   <div class="field"><label for="ppLabel" id="ppLabelL">name today</label><input id="ppLabel" maxlength="40"></div>
+   <div class="field"><label>snacks to grow up</label><div class="stepper"><button type="button" id="gm" aria-label="Fewer">−</button><output id="gv"></output><button type="button" id="gp" aria-label="More">+</button><small id="gh"></small></div></div>
+   ${carry?`<p class="sub" style="margin:0">${carry.length} leftover task${carry.length>1?"s are":" is"} coming along too</p>`:""}
+   <button class="btn wide" type="button" id="getBox">get my blind box ♡</button>`);
   const upd=()=>{
     sh.querySelectorAll("[data-pp]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.pp===pp));
     $("gv").textContent=goal;$("gh").textContent=goal===PURPOSE[pp].goal?"suggested":"";
-    $("ppLabelL").textContent=pp==="day"?"Name this day":pp==="week"?"Name this week":"What's the focus?";
+    $("ppLabelL").textContent=pp==="day"?"name today":pp==="week"?"name this week":"what's the focus?";
   };
-  const setPP=k=>{pp=k;goal=PURPOSE[k].goal;$("ppLabel").value=defaultLabel(k);$("ppLabel").placeholder=k==="focus"?"e.g. Gym, Job apps, Art":"";upd()};
+  const setPP=k=>{pp=k;goal=PURPOSE[k].goal;$("ppLabel").value=defaultLabel(k);$("ppLabel").placeholder=k==="focus"?"gym, job apps, skincare, reading…":"";upd()};
   sh.querySelector("#pps").addEventListener("click",e=>{const b=e.target.closest("[data-pp]");if(b)setPP(b.dataset.pp)});
   $("gm").onclick=()=>{goal=Math.max(1,goal-1);upd()};$("gp").onclick=()=>{goal=Math.min(200,goal+1);upd()};
   setPP("day");
   $("getBox").onclick=()=>openBox({purpose:pp,label:$("ppLabel").value.trim().slice(0,40),goal});
 }
 function openBox(cfg){
-  const sh=modal(`<button class="x" type="button" aria-label="Close">×</button><h2>Your blind box</h2><div class="boxstage"><div class="bx" id="bx" role="button" tabindex="0" aria-label="Open the box">${boxSVG()}</div><div class="tapme">Tap to open!</div></div>`);
+  const sh=modal(`<button class="x" type="button" aria-label="Close">×</button><h2>ur blind box</h2><div class="boxstage"><div class="bx" id="bx" role="button" tabindex="0" aria-label="Open the box">${boxSVG()}</div><div class="tapme">tap to open!!</div></div>`);
   let opened=false;
   const go=()=>{if(opened)return;opened=true;$("bx").classList.add("opening");sh.querySelector(".tapme").textContent="…!";setTimeout(()=>reveal(cfg,rollSpecies()),750)};
   $("bx").addEventListener("click",go);$("bx").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}});
@@ -533,26 +534,26 @@ function reveal(cfg,spId){
   const sp=SP[spId],isNew=!S.seen[spId];
   modal(`<div class="reveal"><div class="rays"></div><div class="pet">${petSVG(sp,{stage:0,mood:"happy"})}</div>
    <span class="tag r-${sp.r}" style="position:relative">${RNAME[sp.r]}${sp.r==="secret"?" ✦":""}</span>
-   <h3>It's a ${sp.name}!${isNew?`<span class="newbadge">NEW!</span>`:""}</h3></div>
-   <div class="field"><label for="petName">Name your new friend</label><input id="petName" maxlength="18" value="${esc(pick(NAMES))}"></div>
-   <button class="btn wide" type="button" id="hello">Say hi!</button>`);
+   <h3>omg it's a ${sp.name}!!${isNew?`<span class="newbadge">NEW!</span>`:""}</h3></div>
+   <div class="field"><label for="petName">name ur new friend</label><input id="petName" maxlength="18" value="${esc(pick(NAMES))}"></div>
+   <button class="btn wide" type="button" id="hello">hiii ♡</button>`);
   const make=()=>{
     const name=($("petName").value.trim()||pick(NAMES)).slice(0,18);
     const p={id:uid(),species:spId,name,purpose:cfg.purpose,label:cfg.label,goal:cfg.goal,fed:0,born:Date.now(),tasks:carry?carry.map(t=>({...t})):[],eaten:[],home:false};
     carry=null;S.seen[spId]=true;S.pets.push(p);S.active=p.id;save();closeModal();lastHero="";render();
-    setTimeout(()=>{anim("jump");burst(6,"✿");say(`Hi! I'm ${p.name}! Feed me tasks!`,3200)},150);
+    setTimeout(()=>{anim("jump");burst(6,"✿");say(`hi!! i'm ${p.name} ♡ feed me ur tasks`,3200)},150);
   };
   $("hello").onclick=make;$("petName").addEventListener("keydown",e=>{if(e.key==="Enter")make()});
 }
 function sendHome(p){
   const left=p.tasks.filter(t=>!t.done);
-  const finish=()=>{p.home=true;p.homeAt=Date.now();p.tasks=p.tasks.filter(t=>t.done);const a=activePets();S.active=a.length?a[0].id:null;save();closeModal();lastHero="";render();toast(`${p.name} moved into the Meadow ✿`);burst(8,"✿")};
+  const finish=()=>{p.home=true;p.homeAt=Date.now();p.tasks=p.tasks.filter(t=>t.done);const a=activePets();S.active=a.length?a[0].id:null;save();closeModal();lastHero="";render();toast(`${p.name} moved into the meadow ✿`);burst(8,"✿")};
   if(!left.length){finish();return}
   const others=activePets().filter(x=>x.id!==p.id);
-  const sh=modal(`<button class="x" type="button" aria-label="Close">×</button><h2>${esc(p.name)} still has ${left.length} unfinished task${left.length>1?"s":""}</h2><p class="sub">Who should take ${left.length>1?"them":"it"} over?</p>
-   <div class="choices">${others.map(o=>`<button type="button" class="choice" data-to="${o.id}"><span class="av">${petSVG(SP[o.species],{stage:stageOf(o),anim:false,noShadow:true})}</span><span>Give to ${esc(o.name)}<br><small style="color:var(--muted)">${purposeLine(o)}</small></span></button>`).join("")}
-   <button type="button" class="choice" data-to="new"><span class="av" style="place-items:center;background:var(--pink-soft)">${'<svg viewBox="0 0 200 200" width="40">'+boxSVG().slice(boxSVG().indexOf(">")+1)}</span><span>A new blind box pet</span></button>
-   <button type="button" class="choice danger" data-to="drop"><span class="av" style="place-items:center;background:#fff;font-size:22px">×</span><span>Delete ${left.length>1?"them":"it"}</span></button></div>`);
+  const sh=modal(`<button class="x" type="button" aria-label="Close">×</button><h2>${esc(p.name)} still has ${left.length} task${left.length>1?"s":""} left</h2><p class="sub">who's taking ${left.length>1?"them":"it"} over?</p>
+   <div class="choices">${others.map(o=>`<button type="button" class="choice" data-to="${o.id}"><span class="av">${petSVG(SP[o.species],{stage:stageOf(o),anim:false,noShadow:true})}</span><span>give to ${esc(o.name)}<br><small style="color:var(--muted)">${purposeLine(o)}</small></span></button>`).join("")}
+   <button type="button" class="choice" data-to="new"><span class="av" style="place-items:center;background:var(--pink-soft)">${'<svg viewBox="0 0 200 200" width="40">'+boxSVG().slice(boxSVG().indexOf(">")+1)}</span><span>a new blind box baby</span></button>
+   <button type="button" class="choice danger" data-to="drop"><span class="av" style="place-items:center;background:#fff;font-size:22px">×</span><span>just delete ${left.length>1?"them":"it"}</span></button></div>`);
   sh.querySelector(".choices").addEventListener("click",e=>{const b=e.target.closest("[data-to]");if(!b)return;const to=b.dataset.to;
     const moved=left.map(t=>({id:uid(),text:t.text,done:false,fed:false}));
     if(to==="new"){finish();carry=moved;newPetFlow();return}
@@ -561,40 +562,40 @@ function sendHome(p){
 }
 function editFlow(p){
   let goal=p.goal,confirmDel=false;
-  const sh=modal(`<button class="x" type="button" aria-label="Close">×</button><h2>Edit ${esc(p.name)}</h2>
-   <div class="field"><label for="eName">Name</label><input id="eName" maxlength="18" value="${esc(p.name)}"></div>
+  const sh=modal(`<button class="x" type="button" aria-label="Close">×</button><h2>edit ${esc(p.name)}</h2>
+   <div class="field"><label for="eName">name</label><input id="eName" maxlength="18" value="${esc(p.name)}"></div>
    <div class="field"><label for="eLabel">${PURPOSE[p.purpose].t} · label</label><input id="eLabel" maxlength="40" value="${esc(p.label||"")}"></div>
-   <div class="field"><label>Tasks to grow up</label><div class="stepper"><button type="button" id="gm" aria-label="Fewer">−</button><output id="gv">${goal}</output><button type="button" id="gp" aria-label="More">+</button><small>${p.fed} eaten so far</small></div></div>
-   <button class="btn green wide" type="button" id="eSave">Save</button>
-   <button class="link danger" type="button" id="eDel" style="justify-self:center">Say goodbye to ${esc(p.name)}</button>`);
+   <div class="field"><label>snacks to grow up</label><div class="stepper"><button type="button" id="gm" aria-label="Fewer">−</button><output id="gv">${goal}</output><button type="button" id="gp" aria-label="More">+</button><small>${p.fed} eaten so far</small></div></div>
+   <button class="btn green wide" type="button" id="eSave">save ♡</button>
+   <button class="link danger" type="button" id="eDel" style="justify-self:center">say goodbye to ${esc(p.name)}</button>`);
   $("gm").onclick=()=>{goal=Math.max(1,goal-1);$("gv").textContent=goal};$("gp").onclick=()=>{goal=Math.min(200,goal+1);$("gv").textContent=goal};
   $("eSave").onclick=()=>{const before=stageOf(p);p.name=($("eName").value.trim()||p.name).slice(0,18);p.label=$("eLabel").value.trim().slice(0,40);p.goal=goal;if(p.fed>=p.goal&&!p.grownAt)p.grownAt=Date.now();if(p.fed<p.goal)p.grownAt=null;save();closeModal();render();if(stageOf(p)>before)levelUp(p,stageOf(p))};
-  $("eDel").onclick=()=>{if(!confirmDel){confirmDel=true;$("eDel").textContent=`Tap again to delete ${p.name} for good`;return}
+  $("eDel").onclick=()=>{if(!confirmDel){confirmDel=true;$("eDel").textContent="r u sure? tap again to say bye forever";return}
     S.pets=S.pets.filter(x=>x!==p);const a=activePets();S.active=a.length?a[0].id:null;save();closeModal();lastHero="";render()};
 }
 function meadowFlow(tab){
   const res=residents().slice().reverse(),found=SPECIES.filter(s=>S.seen[s.id]).length;
   const body=tab==="res"
     ?(res.length?`<div class="grid">${res.map(r=>`<button type="button" class="card" data-res="${r.id}">${petSVG(SP[r.species],{stage:3,anim:false})}<b>${esc(r.name)}</b><span>${purposeLine(r)}</span><span>${(r.eaten||[]).length} tasks · ${fmt(r.born)}–${fmt(r.homeAt||r.born)}</span></button>`).join("")}</div>`
-      :`<div class="meadowempty">Nobody lives here yet. When a pet is all grown up, send it to the Meadow and it'll play here forever.</div>`)
-    :`<p class="sub" style="margin:0">${found} of ${SPECIES.length} found. Secret ones are very rare!</p><div class="grid">${SPECIES.map(s=>S.seen[s.id]?`<div class="card">${petSVG(s,{stage:3,anim:false})}<b>${s.name}</b><span class="tag r-${s.r}" style="font-size:10px;padding:1px 7px">${RNAME[s.r]}</span></div>`:`<div class="card locked">${petSVG(s,{stage:3,anim:false})}<b>???</b><span class="tag r-${s.r}" style="font-size:10px;padding:1px 7px">${RNAME[s.r]}</span></div>`).join("")}</div>`;
-  const sh=modal(`<button class="x" type="button" aria-label="Close">×</button><h2>${tab==="res"?"The Meadow":"Collection"}</h2>
-   <div class="tabs" role="tablist"><button type="button" role="tab" aria-selected="${tab==="res"}" data-tab="res">Residents (${res.length})</button><button type="button" role="tab" aria-selected="${tab==="book"}" data-tab="book">Collection</button></div>${body}`);
+      :`<div class="meadowempty">nobody lives here yet! once a pet is all grown up, send them here and they'll frolic forever ✿</div>`)
+    :`<p class="sub" style="margin:0">${found}/${SPECIES.length} found · secret ones are suuuper rare</p><div class="grid">${SPECIES.map(s=>S.seen[s.id]?`<div class="card">${petSVG(s,{stage:3,anim:false})}<b>${s.name}</b><span class="tag r-${s.r}" style="font-size:10px;padding:1px 7px">${RNAME[s.r]}</span></div>`:`<div class="card locked">${petSVG(s,{stage:3,anim:false})}<b>???</b><span class="tag r-${s.r}" style="font-size:10px;padding:1px 7px">${RNAME[s.r]}</span></div>`).join("")}</div>`;
+  const sh=modal(`<button class="x" type="button" aria-label="Close">×</button><h2>${tab==="res"?"the meadow":"sticker book"}</h2>
+   <div class="tabs" role="tablist"><button type="button" role="tab" aria-selected="${tab==="res"}" data-tab="res">residents (${res.length})</button><button type="button" role="tab" aria-selected="${tab==="book"}" data-tab="book">sticker book</button></div>${body}`);
   sh.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(b)meadowFlow(b.dataset.tab)});
   sh.querySelectorAll("[data-res]").forEach(b=>b.onclick=()=>residentFlow(S.pets.find(x=>x.id===b.dataset.res)));
 }
 function residentFlow(r){
   const sp=SP[r.species],e=(r.eaten||[]).slice().reverse();
   const sh=modal(`<button class="x" type="button" aria-label="Close">×</button><div class="reveal"><div class="pet" style="width:150px">${petSVG(sp,{stage:3,sparkle:true})}</div><h3>${esc(r.name)}</h3><div class="tags" style="justify-content:center"><span class="tag purpose">${purposeLine(r)}</span><span class="tag r-${sp.r}">${sp.name}</span></div>
-   <p class="sub" style="margin:4px 0 0">Born ${fmt(r.born)} · moved to the Meadow ${fmt(r.homeAt||r.born)}</p></div>
-   <h2 style="font-size:18px">Tasks ${esc(r.name)} ate (${e.length})</h2><ul class="eaten">${e.map(x=>`<li>${esc(x.t)}<span>${fmt(x.at)}</span></li>`).join("")||`<li>No tasks recorded</li>`}</ul>
-   <button class="btn plain wide" type="button" id="back">Back to the Meadow</button>`);
+   <p class="sub" style="margin:4px 0 0">born ${fmt(r.born)} · moved in ${fmt(r.homeAt||r.born)}</p></div>
+   <h2 style="font-size:18px">everything ${esc(r.name)} ate (${e.length})</h2><ul class="eaten">${e.map(x=>`<li>${esc(x.t)}<span>${fmt(x.at)}</span></li>`).join("")||`<li>nothing saved here</li>`}</ul>
+   <button class="btn plain wide" type="button" id="back">back to the meadow</button>`);
   $("back").onclick=()=>meadowFlow("res");
 }
 
 /* ================= boot ================= */
 render();
-setTimeout(()=>{const p=cur();if(p)say(pick(["I missed you!!","You're back!","Hi hi hi!","Let's get stuff done"]));else say("Psst… tap the box!",3000)},700);
+setTimeout(()=>{const p=cur();if(p)say(pick(["omg ur back!!","missed u sm","hiii (˶ᵔ ᵕ ᵔ˶)","ok let's lock in","i was literally just thinking about u"]));else say("psst… open me ♡",3000)},700);
 })();
 </script>
 <script>if("serviceWorker" in navigator){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script>

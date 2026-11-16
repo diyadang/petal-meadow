@@ -1,7 +1,7 @@
 {
-  "name": "Petal Meadow",
-  "short_name": "Petal Meadow",
-  "description": "A to-do list where finished tasks feed blind-box pets that grow up and move into the Meadow.",
+  "name": "nibble",
+  "short_name": "nibble",
+  "description": "a to-do list where ur finished tasks feed blind-box pets that grow up and move into the meadow.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
